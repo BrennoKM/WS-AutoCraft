@@ -1,0 +1,11 @@
+[
+    {
+        "item": "bracelete_1_10",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": true,
+        "posicao": 4,
+        "duração_dia_hora_minuto": [0, 2, 0] 
+    }
+]

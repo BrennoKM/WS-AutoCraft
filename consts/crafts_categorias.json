@@ -1,0 +1,29 @@
+{
+    "longo_alcance": {
+        "slots_especiais": 2
+    },
+    "corpo_a_corpo": {
+        "slots_especiais": 3
+    },
+    "armadura_tecido": {
+        "slots_especiais": 2
+    },
+    "armadura_leve": {
+        "slots_especiais": 2
+    },
+    "armadura_pesada": {
+        "slots_especiais": 2
+    },
+    "capote": {
+        "slots_especiais": 2
+    },
+    "colar": {
+        "slots_especiais": 2
+    },
+    "anel": {
+        "slots_especiais": 2
+    },
+    "bracelete": {
+        "slots_especiais": 2
+    }
+}

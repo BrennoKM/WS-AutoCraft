@@ -1,0 +1,37 @@
+[
+    {
+        "nickname":"Mogamett",
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "anel"],
+        "slots": 11
+    },
+    {
+        "nickname":"Jikininki",
+        "crafts": ["bracelete"],
+        "slots": 2
+    },
+    {
+        "nickname":"Scalaxy",
+        "crafts": ["bracelete"],
+        "slots": 3
+    },
+    {
+        "nickname":"Waxius",
+        "crafts": ["bracelete"],
+        "slots": 2
+    },
+    {
+        "nickname":"Phormid",
+        "crafts": ["bracelete"],
+        "slots": 2
+    },
+    {
+        "nickname":"Aqsafada",
+        "crafts": ["bracelete"],
+        "slots": 3
+    },
+    {
+        "nickname":"Kobernn",
+        "crafts": ["bracelete"],
+        "slots": 2
+    }
+]
