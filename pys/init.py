@@ -161,6 +161,8 @@ def iniciar(myEvent, myEventPausa):
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
         acoes_person.fechar_popup(myEvent, myEventPausa)
 
+        # contador_desmontados = desmontar(personagem, craft['item'], (5), myEvent, myEventPausa) ## apenas para testes, não descomentar
+
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return

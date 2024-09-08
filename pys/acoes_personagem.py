@@ -204,6 +204,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
         caminho_craft_cadeado = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_cadeado.png'
 
         for j in range(personagem['slots']):
+            iniciou = False
             for i in range(3):
                 if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                 time.sleep(0.5)
@@ -220,6 +221,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                     if resultado is True:
                         info.printinfo("Um craft foi iniciado.")
                         contador_iniciados+=1
+                        iniciou = True
                     elif resultado is False:
                         info.printinfo("Houve algum problema ao tentar iniciar um craft.", erro=True)
                         return [craft['duração_dia_hora_minuto'], (personagem['slots']*-3)] ## multiplicado por -3 para que o contador seja negativo
@@ -236,7 +238,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         info.printinfo("Encontrou slot bloqueado ou todos estão ocupados.", erro=True)
                         if contador_iniciados == 0 and contador == 0:
-                            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
+                            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
                             segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
                             nova_duracao = converter_de_segundos(segundos*0.1)
                             return [nova_duracao, 0]
@@ -251,15 +253,18 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                             pg.sleep(0.3)
                             pg.press("down")
                 pg.sleep(1)
-            if contador_iniciados == 0:
-                info.printinfo("Não foi possível iniciar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
+            if contador_iniciados == 0 or iniciou == False:
+                if contador_iniciados == 0:
+                    info.printinfo("Não foi possível iniciar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
+                if iniciou == False:
+                    info.printinfo("Todos slots estão ocupados.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
                 segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
                 nova_duracao = converter_de_segundos(segundos*0.1)
                 return [nova_duracao, 0]
         verificar_pausa(myEventPausa)
         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
         if contador_iniciados == 0 and contador == 0:
-            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
+            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
             segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
             nova_duracao = converter_de_segundos(segundos*0.1)
             return [nova_duracao, 0]
