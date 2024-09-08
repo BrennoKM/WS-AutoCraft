@@ -19,7 +19,7 @@ def filtrar_json(lista, atributo ,caminho_arquivo_json):
 def salvar_log(log):
     if not os.path.exists(constantes.PATH_LOGS):
         os.makedirs(constantes.PATH_LOGS)
-    data_hora_atual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    data_hora_atual = datetime.now().strftime("%d-%m-%Y__%H-%M-%S")
     nome_arquivo_log = os.path.join(constantes.PATH_LOGS, f"log_{data_hora_atual}.txt")
     
     with open(nome_arquivo_log, 'w', encoding='utf-8') as arquivo_log:

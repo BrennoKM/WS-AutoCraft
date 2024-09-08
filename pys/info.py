@@ -19,8 +19,9 @@ def printinfo(texto, erro=False):
             pass
     data_atual = datetime.now().strftime("%d/%m/%Y")
     hora_atual = datetime.now().strftime("%H:%M:%S")
-    msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: \033[95m{hora_atual}\033[0m"
+    msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: {hora_atual}"
     log = f'{log}\n{msg}'
+    msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: \033[95m{hora_atual}\033[0m"
 
     if erro:
         msg = msg.replace(f"Mensagem:        <'{texto}'>", f"\033[91mMensagem:        <'{texto}'>\033[0m")

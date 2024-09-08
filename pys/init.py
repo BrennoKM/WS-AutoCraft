@@ -63,6 +63,11 @@ def iniciar(myEvent, myEventPausa):
     tempo_restante = dados['tempo_restante']
     itens = dados['itens']
 
+    if tempo_restante.__len__() < nicknames.__len__():
+        for _ in range(nicknames.__len__() - tempo_restante.__len__()):
+            tempo_restante.append([0, 0, 0])
+    
+
     espera_inicial = dados['tempo_espera_inicial']
     primeira_espera(espera_inicial, myEvent, myEventPausa)
 
@@ -167,6 +172,7 @@ def iniciar(myEvent, myEventPausa):
         if contador < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
             info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.")
             contador_desmontados = desmontar(personagem, craft['item'], (contador*-1), myEvent, myEventPausa)
+            acoes_person.fechar_popup(myEvent, myEventPausa)
             verificar_pausa(myEventPausa)
             info.printinfo(f"Foram desmontados {contador_desmontados} itens.")
             if contador_desmontados > 0: ## as vezes retorna None e ainda não entendi o motivo
@@ -187,9 +193,9 @@ def iniciar(myEvent, myEventPausa):
         if not myEvent.is_set():
                 return
         acoes_person.fechar_popup(myEvent, myEventPausa)
+        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
         acoes_person.deslogar(myEvent, myEventPausa)
 
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():

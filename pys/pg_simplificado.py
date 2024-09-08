@@ -44,6 +44,7 @@ def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, neces
                 slot = pg.center(slot)
             if(mover == True):
                 mover_para(slot)
+            # if necessario is True:  ## coloquei essa condição pro log não ficar tão poluído	
             info.printinfo(f'Alvo encontrado: {path}')
             return slot
         if necessario is True:
