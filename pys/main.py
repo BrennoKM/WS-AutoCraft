@@ -103,6 +103,10 @@ global myEventPausa
 myEventPausa = threading.Event()
 myEventPausa.clear()
 
+# th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
+# th.start()
+# myEvent.set()
+
 th_l = threading.Thread(target=listener)
 th_l.start()
 th_l.join()

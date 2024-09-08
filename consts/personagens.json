@@ -7,7 +7,7 @@
     {
         "nickname":"Jikininki",
         "crafts": ["bracelete"],
-        "slots": 2
+        "slots": 3
     },
     {
         "nickname":"Scalaxy",
@@ -17,12 +17,12 @@
     {
         "nickname":"Waxius",
         "crafts": ["bracelete"],
-        "slots": 2
+        "slots": 3
     },
     {
         "nickname":"Phormid",
         "crafts": ["bracelete"],
-        "slots": 2
+        "slots": 3
     },
     {
         "nickname":"Aqsafada",
@@ -32,6 +32,6 @@
     {
         "nickname":"Kobernn",
         "crafts": ["bracelete"],
-        "slots": 2
+        "slots": 3
     }
 ]

@@ -1,6 +1,6 @@
 import inspect
 import os.path
-# import entrada_saida as es
+import entrada_saida as es
 from datetime import datetime
 
 log = ''
@@ -28,8 +28,10 @@ def printinfo(texto, erro=False):
         msg = msg.replace(f"Mensagem:        <'{texto}'>", f"\033[92mMensagem:        <'{texto}'>\033[0m")
     print(msg)
 
-# def salvar_log():
-#     es.salvar_log(log)
+def salvar_log():
+    global log
+    es.salvar_log(log)
+    log = ''
 
 
 

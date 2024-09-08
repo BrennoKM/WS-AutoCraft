@@ -11,6 +11,19 @@ def carregar_craft_categorias():
     global craft_categorias
     craft_categorias = es.carregar_json(f'{const.PATH_CONSTS}crafts_categorias.json')
 
+def converter_para_segundos(tempo):
+    dias, horas, minutos = tempo
+    total_segundos = dias * 86400 + horas * 3600 + minutos * 60
+    return total_segundos
+
+def converter_de_segundos(segundos):
+    dias = segundos // 86400
+    segundos_restantes = segundos % 86400
+    horas = segundos_restantes // 3600
+    segundos_restantes %= 3600
+    minutos = segundos_restantes // 60
+    return dias, horas, minutos
+
 ## 1. Logar
 def logar(personagem, myEvent, myEventPausa):
     
@@ -19,9 +32,18 @@ def logar(personagem, myEvent, myEventPausa):
     verificar_pausa(myEventPausa)
     pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
     pgs.clicar(1)
-
+    caminho_popup_erro = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_erro_falha_conexao.png"
     while(pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_avancar_login.png', semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA) is None):
         info.printinfo(f"Aguardando a tela de notícias ser carregada para o personagem {personagem['nickname']}.")
+        alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA)
+        if alvo_erro  is not None:
+            info.printinfo("Houve uma falha de conexão durante o login. Tentando se conectar novamente em breve.", erro=True)
+            pg.sleep(1)
+            pg.press('enter')
+            pg.sleep(0.2)
+            pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
+            pg.sleep(1)
+            pgs.clicar(1)
         time.sleep(2)
         if not myEvent.is_set():
             return
@@ -66,8 +88,19 @@ def logar(personagem, myEvent, myEventPausa):
     verificar_pausa(myEventPausa)
     pgs.mover_para(const.POS_BOTAO_JOGAR)
     pgs.clicar(1)
+    pg.sleep(0.3)
+    caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
+    while pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA) is not None:
+        info.printinfo("Esperando a conexão ser concluída.")
+        if not myEvent.is_set():
+            return
+        verificar_pausa(myEventPausa)
+        pg.sleep(3)
+    if verificar_erro_conexao(myEvent, myEventPausa): return False
+
     verificar_pausa(myEventPausa)
-    pg.sleep(5)
+    pg.sleep(1)
+    return True
 
 ## 2. Fechar popup
 def fechar_popup(myEvent, myEventPausa):
@@ -77,21 +110,61 @@ def fechar_popup(myEvent, myEventPausa):
     pg.sleep(2)
     caminho_popup_nao = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_nao.png'
     caminho_popup_sim = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_sim.png'
-    alvo_nao = pgs.encontrar_alvo(caminho_popup_nao, semelhanca=0.8, necessario=False, regiao=const.AREA_TELA_WARSPEAR)
-    alvo_sim = pgs.encontrar_alvo(caminho_popup_sim, semelhanca=0.8, necessario=False, regiao=const.AREA_TELA_WARSPEAR)
+    alvo_nao = pgs.encontrar_alvo(caminho_popup_nao, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    alvo_sim = pgs.encontrar_alvo(caminho_popup_sim, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
     if alvo_nao is not None and alvo_sim is not None:
-        info.printinfo("Popup de login presente infelizmente apareceu.", erro=True)
+        info.printinfo("Popup de login diário infelizmente apareceu.", erro=True)
         pg.sleep(8)
+        if verificar_tela_login(myEvent, myEventPausa): return
         pg.press('f1')
         pg.sleep(0.5)
+        if verificar_tela_login(myEvent, myEventPausa): return
         pg.press('f1')
         pg.sleep(0.5)
+        if verificar_tela_login(myEvent, myEventPausa): return
         pg.press('f1')
         pg.sleep(0.5)
+        if verificar_tela_login(myEvent, myEventPausa): return
         pg.press('f1')
         pg.sleep(0.5)
+        if verificar_tela_login(myEvent, myEventPausa): return
         pg.press('f1')
         pg.sleep(0.5)
+
+## 2.1 Tratar erro de conexão
+def verificar_erro_conexao(myEvent, myEventPausa):
+    if not myEvent.is_set():
+        return
+    verificar_pausa(myEventPausa)
+    pg.sleep(0.7)
+    caminho_popup_erro = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_erro_falha_conexao.png"
+    caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
+    
+    alvo_reconectando = pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+
+    if alvo_erro  is not None or alvo_reconectando is not None:
+        info.printinfo("Houve uma falha de conexão.", erro=True)
+        pg.sleep(1)
+        pg.press('enter')
+        pg.sleep(0.2)
+        # pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
+        # pg.sleep(1)
+        # pgs.clicar(1)
+        return True
+    if verificar_tela_login(myEvent, myEventPausa): return True
+    return False
+
+## 2.2 Verificar se está na tela de login
+def verificar_tela_login(myEvent, myEventPausa):
+    if not myEvent.is_set():
+        return
+    verificar_pausa(myEventPausa)
+    caminho_popup_sair = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_sair.png"
+    alvo_sair = pgs.encontrar_alvo(caminho_popup_sair, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_SAIR)
+    if alvo_sair is not None:
+        return True
+    return False
 
 ## 3. Abrir menu craft
 def abrir_menu_craft(myEvent, myEventPausa):
@@ -131,6 +204,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
 
         for _ in range(personagem['slots']):
             for i in range(3):
+                if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                 time.sleep(0.5)
                 pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
                 alvo_slot = pgs.encontrar_alvo(caminho_slot, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
@@ -141,7 +215,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                     time.sleep(0.5)
                     verificar_pausa(myEventPausa)
                     resultado = iniciar_craft(personagem, craft, myEvent, myEventPausa)
-
+                    if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                     if resultado is True:
                         info.printinfo("Um craft foi iniciado.")
                         contador_iniciados+=1
@@ -158,10 +232,17 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                 else:
                     alvo_cadeado = pgs.encontrar_alvo(caminho_craft_cadeado, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
                     if alvo_cadeado is not None:
+                        if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         info.printinfo("Encontrou slot bloqueado, todos estão ocupados.", erro=True)
+                        if contador_iniciados == 0 and contador == 0:
+                            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
+                            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+                            nova_duracao = converter_de_segundos(segundos*0.1)
+                            return [nova_duracao, 0]
                         return [craft['duração_dia_hora_minuto'], contador]
                     # for _ in range(4):
                     for _ in range(8 if i == 1 else 4):
+                        if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         if not myEvent.is_set():
                                 return [None, None]
                         verificar_pausa(myEventPausa)
@@ -169,19 +250,22 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                             pg.sleep(0.3)
                             pg.press("down")
                 pg.sleep(1)
-            
     verificar_pausa(myEventPausa)
+    if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
     if contador_iniciados == 0 and contador == 0:
         info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
-        return [[0, 0, 20], 0]
+        segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+        nova_duracao = converter_de_segundos(segundos*0.1)
+        return [nova_duracao, 0]
     return [craft['duração_dia_hora_minuto'], contador]
-                      
+               
 ## 4.1 verificar conluidos (passo intermédiario)
 def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
     contador=0
     primeira_vez = True
     caminho = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_concluido.png'
     for _ in range(personagem['slots']):
+        if verificar_erro_conexao(myEvent, myEventPausa): return contador
         if not myEvent.is_set():
             return
         alvo = pgs.encontrar_alvo(caminho, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
@@ -194,10 +278,12 @@ def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
                 pgs.mover_para(alvo)
                 pgs.clicar(1)
                 primeira_vez = False
-            pg.sleep(0.3)  
+            pg.sleep(0.3)
+            if verificar_tela_login(myEvent, myEventPausa): return
             pg.press('f2')
             contador+=1
             pg.sleep(0.3)
+            if verificar_erro_conexao(myEvent, myEventPausa): return contador
             info.printinfo("Coletou um craft concluído.")
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
     pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
@@ -211,6 +297,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
     caminho_craft_iniciar_alvo = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_iniciar.png'
     caminho_popup_faltou_recurso = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_faltou_recurso.png'
     for i in range(3):
+        if verificar_erro_conexao(myEvent, myEventPausa): return False
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
         # if i == 0:
         #     pgs.clicar(1) ## por enquanto não precisa, parece estar correto abrir a profissão já selecionada
@@ -228,6 +315,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             alvo_iniciar = pgs.encontrar_alvo(caminho_craft_iniciar_alvo, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_CRAFT_INICIAR)
             pg.sleep(0.3)
             if alvo_iniciar is None:
+                if verificar_erro_conexao(myEvent, myEventPausa): return False
                 info.printinfo("Não entrou na categoria, clicando mais uma vez.")
                 pg.sleep(0.3)
                 pgs.clicar(1)
@@ -236,6 +324,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             # slots_especiais = craft_categorias[craft['craft']]['slots_especiais']
             # info.printinfo(slots_especiais)  # imprimir o valor 2
             for _ in range(craft['posicao'] + (craft_categorias[craft['craft']]["slots_especiais"] - 1)):
+                # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 if not myEvent.is_set():
                     return
                 verificar_pausa(myEventPausa)
@@ -245,7 +334,8 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             pg.sleep(0.3)
             alvo_popup_faltou_recurso = pgs.encontrar_alvo(caminho_popup_faltou_recurso, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA)
             if alvo_popup_faltou_recurso is not None:
-                # info.printinfo("Faltou recurso para iniciar o craft.", erro=True)
+                if verificar_erro_conexao(myEvent, myEventPausa): return False
+                info.printinfo("Faltou recurso para iniciar o craft.", erro=True)
                 pg.sleep(0.3)
                 pg.press("enter")
                 pg.sleep(0.3)
@@ -255,9 +345,11 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             time.sleep(0.5)
             return True ## não acredito que eu estava esquecendo disso, passei horas procurando
         else:
+            if verificar_erro_conexao(myEvent, myEventPausa): return False
             info.printinfo("Não encontrou a categoria do craft.\n\tApertando 'down' pra encontrar.", erro=True)
             # for j in range(4):
             for _ in range(8 if i == 1 else 4):
+                if verificar_erro_conexao(myEvent, myEventPausa): return False
                 if not myEvent.is_set():
                         return
                 verificar_pausa(myEventPausa)
@@ -276,6 +368,7 @@ def fechar_menu_craft(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)
         
@@ -284,6 +377,7 @@ def abrir_menu_bolsa(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')
     pg.sleep(0.3)
     pg.press('1')
@@ -298,6 +392,7 @@ def abrir_aba_equipamento(myEvent, myEventPausa):
     pgs.mover_para(const.POS_BOTAO_BOLSA_MENU)
     pgs.clicar(1)
     pg.sleep(0.3)
+    if verificar_erro_conexao(myEvent, myEventPausa): return None
     alvo = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_BOLSA}ancora_bolsa_equipamento.png', semelhanca=0.8, necessario=True, regiao=const.AREA_BOLSA)
     if not myEvent.is_set():
         return
@@ -312,8 +407,10 @@ def abrir_aba_equipamento(myEvent, myEventPausa):
 def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
     contador_desmontados = 0
     for _ in range(contador):
+        if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
         desmontou = False
         for _ in range(3):
+            if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
             pg.sleep(3)
             alvo = pgs.encontrar_alvo(f'{const.PATH_IMGS_ITENS}{item}.png', semelhanca=0.8, regiao=const.AREA_BOLSA, center=True, necessario=True)
             pg.sleep(0.35)
@@ -332,6 +429,8 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
                 verificar_pausa(myEventPausa)
                 pgs.mover_para(alvo)
                 pgs.clicar(1)
+                if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
+                if verificar_tela_login(myEvent, myEventPausa): return
                 pg.press('f2')
                 pg.sleep(0.15)
                 pg.press('8')
@@ -339,8 +438,11 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
                 if not myEvent.is_set():
                     return contador_desmontados
                 verificar_pausa(myEventPausa)
+                if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
+                if verificar_tela_login(myEvent, myEventPausa): return
                 pg.press('f2')
                 pgs.mover_para(const.POS_BOTAO_BOLSA_MENU)
+                if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
                 info.printinfo("Um item está sendo desmontado.")
                 pg.sleep(8) ## implementar a espera dinamica para desmontar
                 verificar_pausa(myEventPausa)
@@ -354,6 +456,8 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
         if (desmontou == False):
             info.printinfo("Todos itens foram/estão desmontados.")
             break
+    if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
+    info.printinfo(f"Desmontagem concluída. Total de itens desmontados: {contador_desmontados}")
     return contador_desmontados
 
 
@@ -361,6 +465,7 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
 def fechar_menu_bolsa(myEvent, myEventPausa):
     if not myEvent.is_set(): return
     verificar_pausa(myEventPausa)
+    if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)
 
@@ -369,12 +474,14 @@ def deslogar(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')
     pg.sleep(0.3)
     pg.press('9')
     pg.sleep(0.2)
     pg.press('6')
     pg.sleep(0.2)
+    if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')
 
 ## 0. pausando (passo opcional)

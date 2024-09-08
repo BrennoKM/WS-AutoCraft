@@ -7,5 +7,32 @@
         "precisa_desmontar": true,
         "posicao": 4,
         "duração_dia_hora_minuto": [0, 2, 0] 
+    },
+    {
+        "item": "material_bracelete_1",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 1,
+        "duração_dia_hora_minuto": [0, 0, 10] 
+    },
+    {
+        "item": "material_bracelete_2",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 2,
+        "duração_dia_hora_minuto": [0, 0, 15] 
+    },
+    {
+        "item": "material_bracelete_3",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 3,
+        "duração_dia_hora_minuto": [0, 0, 20] 
     }
 ]

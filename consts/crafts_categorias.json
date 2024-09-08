@@ -6,13 +6,13 @@
         "slots_especiais": 3
     },
     "armadura_tecido": {
-        "slots_especiais": 2
+        "slots_especiais": 3
     },
     "armadura_leve": {
-        "slots_especiais": 2
+        "slots_especiais": 3
     },
     "armadura_pesada": {
-        "slots_especiais": 2
+        "slots_especiais": 3
     },
     "capote": {
         "slots_especiais": 2
