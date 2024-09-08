@@ -203,7 +203,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
         caminho_slot = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_slot.png'
         caminho_craft_cadeado = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_cadeado.png'
 
-        for _ in range(personagem['slots']):
+        for j in range(personagem['slots']):
             for i in range(3):
                 if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                 time.sleep(0.5)
@@ -221,7 +221,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                         info.printinfo("Um craft foi iniciado.")
                         contador_iniciados+=1
                     elif resultado is False:
-                        info.printinfo("Faltou recurso para iniciar o craft.", erro=True)
+                        info.printinfo("Houve algum problema ao tentar iniciar um craft.", erro=True)
                         return [craft['duração_dia_hora_minuto'], (personagem['slots']*-3)] ## multiplicado por -3 para que o contador seja negativo
                         ## o contador negativo significa que ele vai tentar desmontar os itens para conseguir recursos
                     else:
@@ -232,9 +232,9 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                     break
                 else:
                     alvo_cadeado = pgs.encontrar_alvo(caminho_craft_cadeado, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
-                    if alvo_cadeado is not None:
+                    if alvo_cadeado is not None or (contador_iniciados == 0 and j > 0):
                         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
-                        info.printinfo("Encontrou slot bloqueado, todos estão ocupados.", erro=True)
+                        info.printinfo("Encontrou slot bloqueado ou todos estão ocupados.", erro=True)
                         if contador_iniciados == 0 and contador == 0:
                             info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo de espera será diminuido.", erro=True)
                             segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
@@ -333,8 +333,8 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
                 pg.sleep(0.2)
             pg.sleep(0.3)
             # slots_especiais = craft_categorias[craft['craft']]['slots_especiais']
-            # info.printinfo(slots_especiais)  # imprimir o valor 2
-            for _ in range(craft['posicao'] + (craft_categorias[craft['craft']]["slots_especiais"] - 1)):
+            # info.printinfo(slots_especiais)  # imprimir o valor 2 para o craft de bracelete
+            for _ in range(craft['posicao'] + (craft_categorias[craft['craft']]["slots_especiais"] - 1)): ## implementar a seleção de crafts especiais futuramente
                 # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 if not myEvent.is_set():
                     return
@@ -372,7 +372,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
     pgs.clicar(1)
     time.sleep(0.5)
     verificar_pausa(myEventPausa)
-    return True
+    return False ## falso pois não inicou um craft
         
 ## 5. fechar menu craft
 def fechar_menu_craft(myEvent, myEventPausa):
@@ -430,9 +430,10 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
                 return contador_desmontados
             verificar_pausa(myEventPausa)
             if alvo is None:
-                if myEvent.is_set():
+                if not myEvent.is_set():
                     return contador_desmontados
                 verificar_pausa(myEventPausa)
+                info.printinfo("Apertando 'down' para procurar no resto da bolsa", erro=True)
                 pgs.press('down', 12, 0.1, myEvent, myEventPausa)
                 pg.sleep(0.15)
             else:

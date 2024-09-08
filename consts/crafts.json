@@ -9,6 +9,15 @@
         "duração_dia_hora_minuto": [0, 2, 0] 
     },
     {
+        "item": "bracelete_1_16",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 19,
+        "duração_dia_hora_minuto": [0, 6, 10] 
+    },
+    {
         "item": "material_bracelete_1",
         "craft": "bracelete",
         "especial": false,

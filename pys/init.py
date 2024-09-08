@@ -29,6 +29,7 @@ def converter_de_segundos(segundos):
 
 primeira_execucao = True
 fila_prioridade = []
+nicknames = []
 
 def primeira_espera(espera_inicial, myEvent, myEventPausa):
     global primeira_execucao
@@ -36,22 +37,31 @@ def primeira_espera(espera_inicial, myEvent, myEventPausa):
         segundos = converter_para_segundos(espera_inicial)
         if segundos > 0:
             info.printinfo("Iniciando espera inicial.")
-            sleep_with_check(segundos, myEvent, myEventPausa)
+            sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=False)
             info.printinfo("Espera inicial terminou.")
         primeira_execucao = False
 
 def print_fila(fila):
+    global nicknames
+    lista = []
     nicks = []
     for f in fila:
         personagem = f[0]
         tempo = f[1]
         tempo_restante = tempo - time.time()
-        nicks.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos")
-    info.printinfo("Fila de prioridade:" + "".join(nicks))
+        lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos")
+        nicks.append(personagem)
+    info.printinfo("Fila de prioridade:" + "".join(lista))
+    if nicks.__len__() < nicknames.__len__():
+        for nick in nicknames:
+            if nick not in nicks:
+                info.printinfo(f"Personagem {nick} está sendo a prioridade.")
+                break
     time.sleep(2)
 
 def iniciar(myEvent, myEventPausa):
     global fila_prioridade
+    global nicknames
     fila_prioridade = []
     acoes_person.carregar_craft_categorias()
     # nicknames =        ["Jikininki", "Scalaxy", "Waxius", "Phormid", "Aqsafada", "Kobernn"]
@@ -229,7 +239,8 @@ def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=
             info.printinfo(f"Houve falha de conexão durante a execução do personagem {personagem['nickname']}, relogando para tentar novamente...", erro=True)
             tempo_maior_prioridade_na_fila = fila_prioridade[0][1]
             segundos = (tempo_maior_prioridade_na_fila - time.time()) * 1.2 ## 20% a mais prioridade para furar a fila
-            tempo_temp = converter_de_segundos(segundos)
+            segundos = segundos if segundos < 0 else segundos * -1 ## se for positivo, multiplica por -1 para ficar negativo
+            # tempo_temp = converter_de_segundos(segundos)
 
             info.printinfo(f"O {personagem['nickname']} foi reinserido na fila com prioridade em segundos: {segundos:.2f}.")
             # info.printinfo(f"Duração = {nova_duracao}")
@@ -266,7 +277,7 @@ def desmontar(personagem, craft, contador, myEvent, myEventPausa):
     return contador_desmontados
 
 
-def sleep_with_check(segundos, myEvent, myEventPausa):
+def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
     global fila_prioridade
     if segundos <= 0:
         return
@@ -288,8 +299,9 @@ def sleep_with_check(segundos, myEvent, myEventPausa):
         if contador_mensagem >= intervalo_mensagem:
             contador_mensagem = 0
             tempo_restante = converter_de_segundos(segundos - (_ * intervalo))
-            print_fila(fila_prioridade)
-            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.")
+            if imprimir_fila:
+                print_fila(fila_prioridade)
+                info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.")
 
     if myEvent.is_set():
         info.printinfo("Tempo de espera finalizado.")
