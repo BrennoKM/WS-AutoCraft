@@ -303,7 +303,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
             tempo_restante = converter_de_segundos(segundos - (_ * intervalo))
             if imprimir_fila:
                 print_fila(fila_prioridade)
-                info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.")
+            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.")
 
     if myEvent.is_set():
         info.printinfo("Tempo de espera finalizado.")

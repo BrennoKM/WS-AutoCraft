@@ -266,9 +266,9 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                 return [nova_duracao, 0]
         verificar_pausa(myEventPausa)
         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
-        for _ in range(50): ## temporário, apenas para garantir que eu veja o print abaixo
-            info.printinfo("Debug (quero saber se o trecho abaixo é necessário e está alcançavel)")
         if contador_iniciados == 0 and contador == 0:
+            for _ in range(50): ## temporário, apenas para garantir que eu veja o print abaixo
+                info.printinfo("Debug (quero saber se o trecho abaixo é necessário e está alcançavel)")
             info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
             segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
             nova_duracao = converter_de_segundos(segundos*0.1)
