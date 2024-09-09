@@ -108,6 +108,7 @@ def fechar_popup(myEvent, myEventPausa):
         return
     verificar_pausa(myEventPausa)
     pg.sleep(2)
+    if verificar_erro_conexao(myEvent, myEventPausa): return
     caminho_popup_nao = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_nao.png'
     caminho_popup_sim = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_sim.png'
     alvo_nao = pgs.encontrar_alvo(caminho_popup_nao, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
@@ -145,7 +146,7 @@ def verificar_erro_conexao(myEvent, myEventPausa):
 
     if alvo_erro  is not None or alvo_reconectando is not None:
         info.printinfo("Houve uma falha de conexão.", erro=True)
-        pg.sleep(1)
+        # pg.sleep(1)
         pg.press('enter')
         pg.sleep(0.2)
         # pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
@@ -192,7 +193,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
     if craft['craft'] in personagem['crafts']:
         info.printinfo(f'Iniciando task para {personagem["nickname"]} com o craft {craft["item"]}')
         pg.sleep(1)
-        verifica_aba = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_pedidos_ativos.png', semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+        verifica_aba = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_pedidos_ativos.png', semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_PEDIDOS_ATIVOS)
         pg.sleep(0.4)
         if verifica_aba is None:
             pg.press("right")
@@ -209,7 +210,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                 if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                 time.sleep(0.5)
                 pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
-                alvo_slot = pgs.encontrar_alvo(caminho_slot, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+                alvo_slot = pgs.encontrar_alvo(caminho_slot, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_SLOTS)
                 
                 if alvo_slot is not None:
                     pgs.mover_para(alvo_slot)
@@ -233,7 +234,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                     time.sleep(0.2)
                     break
                 else:
-                    alvo_cadeado = pgs.encontrar_alvo(caminho_craft_cadeado, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+                    alvo_cadeado = pgs.encontrar_alvo(caminho_craft_cadeado, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_SLOTS)
                     if alvo_cadeado is not None or (contador_iniciados == 0 and j > 0):
                         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         info.printinfo("Encontrou slot bloqueado ou todos estão ocupados.", erro=True)
@@ -244,14 +245,16 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                             return [nova_duracao, 0]
                         return [craft['duração_dia_hora_minuto'], contador]
                     # for _ in range(4):
-                    for _ in range(8 if i == 1 else 4):
-                        if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
+                    for _ in range(8 if i == 0 else 4):
+                        # if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         if not myEvent.is_set():
                                 return [None, None]
                         verificar_pausa(myEventPausa)
-                        if(i != 0):
-                            pg.sleep(0.3)
-                            pg.press("down")
+                        # if(i != 0):
+                        pg.sleep(0.3)
+                        pg.press("down")
+                        # else:
+                        #     break
                 pg.sleep(1)
             if contador_iniciados == 0 or iniciou == False:
                 if contador_iniciados == 0:
@@ -263,6 +266,8 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                 return [nova_duracao, 0]
         verificar_pausa(myEventPausa)
         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
+        for _ in range(50): ## temporário, apenas para garantir que eu veja o print abaixo
+            info.printinfo("Debug (quero saber se o trecho abaixo é necessário e está alcançavel)")
         if contador_iniciados == 0 and contador == 0:
             info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
             segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
@@ -321,7 +326,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             return
         verificar_pausa(myEventPausa)
         time.sleep(0.2)
-        alvo_craft = pgs.encontrar_alvo(caminho_craft_alvo, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_craft = pgs.encontrar_alvo(caminho_craft_alvo, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_SLOTS)
         time.sleep(0.3)
         if alvo_craft is not None:
             info.printinfo("Encontrou a categoria do craft.")
@@ -331,7 +336,7 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
             alvo_iniciar = pgs.encontrar_alvo(caminho_craft_iniciar_alvo, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_CRAFT_INICIAR)
             pg.sleep(0.3)
             if alvo_iniciar is None:
-                if verificar_erro_conexao(myEvent, myEventPausa): return False
+                # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 info.printinfo("Não entrou na categoria, clicando mais uma vez.")
                 pg.sleep(0.2)
                 pgs.clicar(1)
@@ -363,9 +368,9 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
         else:
             if verificar_erro_conexao(myEvent, myEventPausa): return False
             info.printinfo("Não encontrou a categoria do craft.\n\tApertando 'down' pra encontrar.", erro=True)
-            # for j in range(4):
-            for _ in range(8 if i == 1 else 4):
-                if verificar_erro_conexao(myEvent, myEventPausa): return False
+            # for _ in range(4):
+            for _ in range(8 if i == 0 else 4):
+                # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 if not myEvent.is_set():
                         return
                 verificar_pausa(myEventPausa)
@@ -384,6 +389,7 @@ def fechar_menu_craft(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    if verificar_erro_conexao(myEvent, myEventPausa): return
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)
@@ -393,6 +399,7 @@ def abrir_menu_bolsa(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    if verificar_erro_conexao(myEvent, myEventPausa): return
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')
     pg.sleep(0.3)
@@ -485,6 +492,7 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
 def fechar_menu_bolsa(myEvent, myEventPausa):
     if not myEvent.is_set(): return
     verificar_pausa(myEventPausa)
+    if verificar_erro_conexao(myEvent, myEventPausa): return
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)

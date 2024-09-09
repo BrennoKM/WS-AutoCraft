@@ -294,7 +294,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
         if not myEvent.is_set():
             info.printinfo("Tempo de espera foi cancelado.")
             break
-        verificar_pausa(myEventPausa)
+        # verificar_pausa(myEventPausa) ## comentando pois não faz muito sentido uma pausa dentro de uma pausa
         time.sleep(intervalo)
         contador_mensagem += intervalo
 
