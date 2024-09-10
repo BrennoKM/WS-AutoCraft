@@ -21,7 +21,13 @@ AREA_BOLSA = (1217, 145, 436, 867)
 POS_BOTAO_BOLSA_MENU = (1430, 235)
 
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+import sys
+
+# Diretório onde o executável ou script está sendo executado
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.join(os.path.dirname(sys.executable), 'pys')
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Diretório do script
 
 PATH_IMGS_ICON = os.path.join(BASE_DIR, '..\\imgs\\icones\\')
 PATH_IMGS_ANCORAS_CRAFT = os.path.join(BASE_DIR, '..\\imgs\\ancoras\\ancoras craft\\')
