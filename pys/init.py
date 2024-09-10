@@ -189,7 +189,7 @@ def iniciar(myEvent, myEventPausa):
             info.printinfo(f"Foram desmontados {contador_desmontados} itens.")
             if contador_desmontados > 0: ## as vezes retorna None e ainda não entendi o motivo
                 info.printinfo("Desmontagem concluída, tentando craftar novamente.")
-                duracao, contador = craftar(personagem, craft, myEvent, myEventPausa) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
+                duracao, contador = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
 
 
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
@@ -251,9 +251,9 @@ def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=
         return True
     return False
 
-def craftar(personagem, craft, myEvent, myEventPausa):
+def craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
     acoes_person.abrir_menu_craft(myEvent, myEventPausa)
-    duracao, contador = acoes_person.iniciar_todos_slots(personagem, craft, myEvent, myEventPausa)
+    duracao, contador = acoes_person.iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa)
     if verificar_erro_conexao(personagem, myEvent, myEventPausa): return duracao, contador
     verificar_pausa(myEventPausa)
     if duracao is None and contador is None:

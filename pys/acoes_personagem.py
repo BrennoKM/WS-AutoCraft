@@ -99,7 +99,7 @@ def logar(personagem, myEvent, myEventPausa):
     if verificar_erro_conexao(myEvent, myEventPausa): return False
 
     verificar_pausa(myEventPausa)
-    pg.sleep(1)
+    pg.sleep(0.1)
     return True
 
 ## 2. Fechar popup
@@ -179,8 +179,8 @@ def abrir_menu_craft(myEvent, myEventPausa):
     pg.press("7")
 
 ## 4. iniciar todos slots
-def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
-    contador = 0
+def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
+    contador_coletados = 0
     contador_iniciados = 0
     if not myEvent.is_set():
         return [None, None]
@@ -200,7 +200,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
             info.printinfo("Não estava na aba de pedidos ativos.\n\tAlternando aba", erro=True)
 
         
-        contador = verificar_concluidos(personagem, craft, myEvent, myEventPausa)
+        contador_coletados = verificar_concluidos(personagem, craft, myEvent, myEventPausa)
         caminho_slot = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_slot.png'
         caminho_craft_cadeado = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_cadeado.png'
 
@@ -235,18 +235,10 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                     break
                 else:
                     alvo_cadeado = pgs.encontrar_alvo(caminho_craft_cadeado, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_SLOTS)
-                    if alvo_cadeado is not None or (contador_iniciados == 0 and j > 0):
-                        if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
-                        info.printinfo("Encontrou slot bloqueado ou todos estão ocupados.", erro=True)
-                        if contador_iniciados == 0 and contador == 0:
-                            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
-                            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
-                            nova_duracao = converter_de_segundos(segundos*0.1)
-                            return [nova_duracao, 0]
-                        return [craft['duração_dia_hora_minuto'], contador]
-                    # for _ in range(4):
+                    if alvo_cadeado is not None:
+                        info.printinfo("Slot bloqueado foi encontrado.")
+                        break
                     for _ in range(8 if i == 0 else 4):
-                        # if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                         if not myEvent.is_set():
                                 return [None, None]
                         verificar_pausa(myEventPausa)
@@ -256,24 +248,24 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa):
                         # else:
                         #     break
                 pg.sleep(1)
-            if contador_iniciados == 0 or iniciou == False:
-                if contador_iniciados == 0:
-                    info.printinfo("Não foi possível iniciar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
-                if iniciou == False:
-                    info.printinfo("Todos slots estão ocupados.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
+            iniciados_menor_que_slots = contador_iniciados < j+1 ## j+1 pois o contador inicia em 0 e o contador de iniciados precisa estar sempre um passo a frente
+            if iniciados_menor_que_slots and segunda_tentativa == False:
+            # if iniciou == False:
+                if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
+                info.printinfo(f"Não foi possível iniciar {personagem['slots'] - contador_iniciados} crafts no personagem {personagem['nickname']}.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
+            
                 segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
                 nova_duracao = converter_de_segundos(segundos*0.1)
                 return [nova_duracao, 0]
+
+            
         verificar_pausa(myEventPausa)
         if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
-        if contador_iniciados == 0 and contador == 0:
-            for _ in range(50): ## temporário, apenas para garantir que eu veja o print abaixo
-                info.printinfo("Debug (quero saber se o trecho abaixo é necessário e está alcançavel)")
-            info.printinfo("Não foi possível iniciar nem coletar nenhum craft.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
-            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
-            nova_duracao = converter_de_segundos(segundos*0.1)
-            return [nova_duracao, 0]
-        return [craft['duração_dia_hora_minuto'], contador]
+        if segunda_tentativa == False:
+            info.printinfo(f'Todos os {contador_iniciados} slots foram iniciados corretamente para o personagem {personagem["nickname"]} e {contador_coletados} itens foram coletados.')
+        else:
+            info.printinfo(f"Iniciou {contador_iniciados} slots faltantes para o personagem {personagem['nickname']}.")
+        return [craft['duração_dia_hora_minuto'], contador_coletados]
     else:
         info.printinfo(f'O personagem {personagem["nickname"]} não possui o craft {craft["item"]}.', erro=True)
         return [None, None]

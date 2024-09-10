@@ -20,15 +20,18 @@ AREA_BOTAO_CRAFT_INICIAR = (1451, 754, 230, 113)
 AREA_BOLSA = (1217, 145, 436, 867)
 POS_BOTAO_BOLSA_MENU = (1430, 235)
 
-PATH_IMGS_ICON = './imgs/icones/'
-PATH_IMGS_ANCORAS_CRAFT = './imgs/ancoras/ancoras craft/'
-PATH_IMGS_ANCORAS_PERSON = './imgs/ancoras/ancoras personagens/'
-PATH_IMGS_ANCORAS_BOLSA = './imgs/ancoras/ancoras bolsa/'
-PATH_IMGS_ANCORAS_POPUP = './imgs/ancoras/ancoras popup/'
-PATH_IMGS_ITENS = './imgs/itens/'
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PATH_ITENS = './itens/'
-PATH_CONSTS = './consts/'
-PATH_LOGS = './logs/'
+PATH_IMGS_ICON = os.path.join(BASE_DIR, '..\\imgs\\icones\\')
+PATH_IMGS_ANCORAS_CRAFT = os.path.join(BASE_DIR, '..\\imgs\\ancoras\\ancoras craft\\')
+PATH_IMGS_ANCORAS_PERSON = os.path.join(BASE_DIR, '..\\imgs\\ancoras\\ancoras personagens\\')
+PATH_IMGS_ANCORAS_BOLSA = os.path.join(BASE_DIR, '..\\imgs\\ancoras\\ancoras bolsa\\')
+PATH_IMGS_ANCORAS_POPUP = os.path.join(BASE_DIR, '..\\imgs\\ancoras\\ancoras popup\\')
+PATH_IMGS_ITENS = os.path.join(BASE_DIR, '..\\imgs\\itens\\')
 
-PATH_TASK = './task.json'
+PATH_ITENS = os.path.join(BASE_DIR, '..\\itens\\')
+PATH_CONSTS = os.path.join(BASE_DIR, '..\\consts\\')
+PATH_LOGS = os.path.join(BASE_DIR, '..\\logs\\')
+
+PATH_TASK = os.path.join(BASE_DIR, '..\\task.json')
