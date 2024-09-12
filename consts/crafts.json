@@ -18,6 +18,15 @@
         "duração_dia_hora_minuto": [0, 6, 10] 
     },
     {
+        "item": "bracelete_2_16",
+        "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 20,
+        "duração_dia_hora_minuto": [0, 6, 10] 
+    },
+    {
         "item": "material_bracelete_1",
         "craft": "bracelete",
         "especial": false,
@@ -38,6 +47,33 @@
     {
         "item": "material_bracelete_3",
         "craft": "bracelete",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 3,
+        "duração_dia_hora_minuto": [0, 0, 20] 
+    },
+    {
+        "item": "material_capote_1",
+        "craft": "capote",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 1,
+        "duração_dia_hora_minuto": [0, 0, 10] 
+    },
+    {
+        "item": "material_capote_2",
+        "craft": "capote",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 2,
+        "duração_dia_hora_minuto": [0, 0, 15] 
+    },
+    {
+        "item": "material_capote_3",
+        "craft": "capote",
         "especial": false,
         "melhoria": false,
         "precisa_desmontar": false,

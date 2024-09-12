@@ -44,6 +44,8 @@ def on_release(key):
             if key == keyboard.Key.esc:
                 info.printinfo("Task encerrada.")
                 myEvent.clear()
+                time.sleep(2)
+                info.salvar_log()
 
             if key.char == "k":
                 info.printinfo("Task iniciada.")

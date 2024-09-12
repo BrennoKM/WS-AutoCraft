@@ -70,6 +70,7 @@ def iniciar(myEvent, myEventPausa):
 
     dados = es.carregar_json(f'{const.PATH_TASK}')
     nicknames = dados['nicknames']
+    # info.printinfo(f"Nicknames: {nicknames}")
     tempo_restante = dados['tempo_restante']
     itens = dados['itens']
 
@@ -94,6 +95,7 @@ def iniciar(myEvent, myEventPausa):
 
     
     for i, personagem in enumerate(personagens):
+        # info.printinfo(f"Adicionando {personagem['nickname']} na fila de prioridade.")
         tempo_espera = time.time() + converter_para_segundos(tempo_restante[i])
         time.sleep(0.1)
         fila_prioridade.append([personagem['nickname'], tempo_espera+2])
@@ -181,15 +183,32 @@ def iniciar(myEvent, myEventPausa):
         
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
 
+        if contador < 0 and craft['precisa_desmontar'] == False: 
+            info.printinfo("Problema ao craftar por falta de recursos, ajustando para tempo para esperar menos.", erro=True)
+            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+            temp_duracao = converter_de_segundos(segundos*0.1)
+            espera_diminuida = True
+            nova_duracao = temp_duracao
+
         if contador < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
             info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.")
             contador_desmontados = desmontar(personagem, craft['item'], (contador*-1), myEvent, myEventPausa)
             acoes_person.fechar_popup(myEvent, myEventPausa)
             verificar_pausa(myEventPausa)
             info.printinfo(f"Foram desmontados {contador_desmontados} itens.")
+            
+            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+            temp_duracao = converter_de_segundos(segundos*0.1)
             if contador_desmontados > 0: ## as vezes retorna None e ainda não entendi o motivo
                 info.printinfo("Desmontagem concluída, tentando craftar novamente.")
-                duracao, contador = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
+                temp_duracao, temp_contador = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
+                if temp_contador < 0:
+                    segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+                    temp_duracao = converter_de_segundos(segundos*0.1)
+            if temp_duracao != craft['duração_dia_hora_minuto']:
+                info.printinfo("Ajustando para esperar menos tempo.")
+                espera_diminuida = True
+                nova_duracao = temp_duracao
 
 
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
@@ -228,7 +247,6 @@ def iniciar(myEvent, myEventPausa):
             if not myEvent.is_set():
                 return
     info.printinfo("Evento finalizado.")
-    info.salvar_log()
 
 def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=False):
     global fila_prioridade
