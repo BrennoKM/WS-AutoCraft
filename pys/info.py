@@ -1,11 +1,13 @@
 import inspect
 import os.path
 import entrada_saida as es
+import telegram_bot as tb
 from datetime import datetime
 
 log = ''
 
-def printinfo(texto, erro=False):
+
+def printinfo(texto, erro=False, enviar_msg=False):
     global log
     pilha_de_chamadas = inspect.stack()
     linha_atual = pilha_de_chamadas[1].frame.f_lineno
@@ -21,6 +23,8 @@ def printinfo(texto, erro=False):
     hora_atual = datetime.now().strftime("%H:%M:%S")
     msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: {hora_atual}"
     log = f'{log}\n{msg}'
+    if enviar_msg == True:
+        tb.send_telegram_message(msg, printinfo_callback=printinfo)
     msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: \033[95m{hora_atual}\033[0m"
 
     if erro:
@@ -34,6 +38,6 @@ def salvar_log():
     es.salvar_log(log)
     log = ''
 
-
+tb.verificar_variaveis_ambiente(printinfo)
 
 

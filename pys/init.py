@@ -51,11 +51,11 @@ def print_fila(fila):
         tempo_restante = tempo - time.time()
         lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos")
         nicks.append(personagem)
-    info.printinfo("Fila de prioridade:" + "".join(lista))
+    info.printinfo("Fila de prioridade:" + "".join(lista), False, True)
     if nicks.__len__() < nicknames.__len__():
         for nick in nicknames:
             if nick not in nicks:
-                info.printinfo(f"Personagem {nick} está sendo a prioridade.")
+                info.printinfo(f"Personagem {nick} está sendo a prioridade.", False, True)
                 break
     time.sleep(2)
 
@@ -124,7 +124,7 @@ def iniciar(myEvent, myEventPausa):
                 return
         time.sleep(0.1)
         tempo_sleep = prioridade[1] - time.time()
-        info.printinfo(f"Tempo de espera para {prioridade[0]}: {tempo_sleep:.2f} segundos.")
+        info.printinfo(f"Tempo de espera para {prioridade[0]}: {tempo_sleep:.2f} segundos.", False, True)
         sleep_with_check(tempo_sleep, myEvent, myEventPausa)
 
         verificar_pausa(myEventPausa)
@@ -256,7 +256,7 @@ def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=
     houve_falha_conexao = acoes_person.verificar_erro_conexao(myEvent, myEventPausa)
     if houve_falha_conexao:
         if reinserir_na_fila:
-            info.printinfo(f"Houve falha de conexão durante a execução do personagem {personagem['nickname']}, relogando para tentar novamente...", erro=True)
+            info.printinfo(f"Houve falha de conexão durante a execução do personagem {personagem['nickname']}, relogando para tentar novamente...", erro=True, enviar_msg=True)
             tempo_maior_prioridade_na_fila = fila_prioridade[0][1]
             segundos = (tempo_maior_prioridade_na_fila - time.time()) * 1.2 ## 20% a mais prioridade para furar a fila
             segundos = segundos if segundos < 0 else segundos * -1 ## se for positivo, multiplica por -1 para ficar negativo
@@ -303,7 +303,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
         return
 
     tempo = converter_de_segundos(segundos)
-    info.printinfo(f"Aguardando por {tempo[0]} dias, {tempo[1]} horas e {tempo[2]} minutos.")
+    info.printinfo(f"Aguardando por {tempo[0]} dias, {tempo[1]} horas e {tempo[2]} minutos.", False, True)
     intervalo = 1  # Intervalo de verificação em segundos
     intervalo_mensagem = 300  # Intervalo para imprimir a mensagem em segundos
     contador_mensagem = 0
@@ -321,7 +321,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
             tempo_restante = converter_de_segundos(segundos - (_ * intervalo))
             if imprimir_fila:
                 print_fila(fila_prioridade)
-            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.")
+            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.", False, True)
 
     if myEvent.is_set():
         info.printinfo("Tempo de espera finalizado.")

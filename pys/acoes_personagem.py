@@ -252,6 +252,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
                 pg.sleep(1)
             iniciados_menor_que_slots = contador_iniciados < j+1 ## j+1 pois o contador inicia em 0 e o contador de iniciados precisa estar sempre um passo a frente
             if iniciados_menor_que_slots and segunda_tentativa == False:
+            # if iniciou == False:
                 if verificar_erro_conexao(myEvent, myEventPausa): return [None, None]
                 info.printinfo(f"Não foi possível iniciar {personagem['slots'] - contador_iniciados} crafts no personagem {personagem['nickname']}.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
             

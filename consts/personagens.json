@@ -7,31 +7,31 @@
     {
         "nickname":"Jikininki",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     },
     {
         "nickname":"Scalaxy",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     },
     {
         "nickname":"Waxius",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     },
     {
         "nickname":"Phormid",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     },
     {
         "nickname":"Aqsafada",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     },
     {
         "nickname":"Kobernn",
         "crafts": ["bracelete"],
-        "slots": 3
+        "slots": 4
     }
 ]
