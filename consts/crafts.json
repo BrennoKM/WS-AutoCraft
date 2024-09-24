@@ -79,5 +79,41 @@
         "precisa_desmontar": false,
         "posicao": 3,
         "duração_dia_hora_minuto": [0, 0, 20] 
+    },
+    {
+        "item": "material_longo_alcance_1",
+        "craft": "longo_alcance",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 1,
+        "duração_dia_hora_minuto": [0, 0, 10] 
+    },
+    {
+        "item": "material_longo_alcance_2",
+        "craft": "longo_alcance",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 2,
+        "duração_dia_hora_minuto": [0, 0, 15] 
+    },
+    {
+        "item": "material_longo_alcance_3",
+        "craft": "longo_alcance",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": false,
+        "posicao": 3,
+        "duração_dia_hora_minuto": [0, 0, 20] 
+    },
+    {
+        "item": "balestra_1_10",
+        "craft": "longo_alcance",
+        "especial": false,
+        "melhoria": false,
+        "precisa_desmontar": true,
+        "posicao": 5,
+        "duração_dia_hora_minuto": [0, 2, 30] 
     }
 ]

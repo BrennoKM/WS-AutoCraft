@@ -296,6 +296,7 @@ def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
             contador+=1
             pg.sleep(0.3)
             if verificar_erro_conexao(myEvent, myEventPausa): return contador
+            ## implementar tratamento de falha pra caso a bolsa esteja cheia e não consiga coletar o item
             info.printinfo("Coletou um craft concluído.")
         else:
             return contador

@@ -21,17 +21,17 @@
     },
     {
         "nickname":"Phormid",
-        "crafts": ["bracelete"],
+        "crafts": ["bracelete", "longo_alcance"],
         "slots": 4
     },
     {
         "nickname":"Aqsafada",
-        "crafts": ["bracelete"],
+        "crafts": ["bracelete", "longo_alcance"],
         "slots": 4
     },
     {
         "nickname":"Kobernn",
-        "crafts": ["bracelete"],
+        "crafts": ["bracelete", "longo_alcance"],
         "slots": 4
     }
 ]
