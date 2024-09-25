@@ -308,20 +308,35 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
     intervalo_mensagem = 300  # Intervalo para imprimir a mensagem em segundos
     contador_mensagem = 0
 
-    for _ in range(int(segundos / intervalo)):
+    tempo_inicial = time.time()
+    tempo_decorrido = 0
+
+    while tempo_decorrido < segundos:
         if not myEvent.is_set():
             info.printinfo("Tempo de espera foi cancelado.")
             break
-        # verificar_pausa(myEventPausa) ## comentando pois não faz muito sentido uma pausa dentro de uma pausa
-        time.sleep(intervalo)
-        contador_mensagem += intervalo
 
+        time.sleep(intervalo)
+        tempo_decorrido = time.time() - tempo_inicial
+
+        contador_mensagem += intervalo
         if contador_mensagem >= intervalo_mensagem:
             contador_mensagem = 0
-            tempo_restante = converter_de_segundos(segundos - (_ * intervalo))
+            tempo_restante = converter_de_segundos(segundos - int(tempo_decorrido))
             if imprimir_fila:
                 print_fila(fila_prioridade)
             info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.", False, True)
+
+        # Verificar pausa
+        if myEventPausa.is_set():
+            info.printinfo("Pausa detectada durante a espera. Aguardando despausar...")
+            while myEventPausa.is_set():
+                if not myEvent.is_set():
+                    info.printinfo("Tempo de espera foi cancelado durante a pausa.")
+                    return
+                time.sleep(intervalo)
+                tempo_decorrido = time.time() - tempo_inicial
+                contador_mensagem += intervalo
 
     if myEvent.is_set():
         info.printinfo("Tempo de espera finalizado.")

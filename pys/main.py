@@ -32,13 +32,13 @@ def on_release(key):
     #     vk_code = key.value.vk if hasattr(key, 'value') else None
     #     print(f'Tecla especial pressionada: {key}, VK code: {vk_code}')
     try:
-        if key == keyboard.Key.alt_gr:
+        if key == keyboard.Key.ctrl_r:
             if myEventAtalho.is_set():
                 myEventAtalho.clear()
-                info.printinfo("Atalhos desativados (Alt Gr para ativar/desativar)", erro=True)
+                info.printinfo("Atalhos desativados (Ctrl_r para ativar/desativar)", erro=True)
             else:
                 myEventAtalho.set()
-                info.printinfo("Atalhos ativados (Alt Gr para ativar/desativar)")
+                info.printinfo("Atalhos ativados (Ctrl_r para ativar/desativar)")
         if myEventAtalho.is_set():
 
             if key == keyboard.Key.esc:
