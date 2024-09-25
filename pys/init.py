@@ -167,7 +167,8 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-                return
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
         duracao, contador = craftar(personagem, craft, myEvent, myEventPausa)
 
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
@@ -179,7 +180,8 @@ def iniciar(myEvent, myEventPausa):
             nova_duracao = duracao
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-                return
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
         
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
 
@@ -222,7 +224,8 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-                return
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
         acoes_person.fechar_popup(myEvent, myEventPausa)
         if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
         acoes_person.deslogar(myEvent, myEventPausa)
@@ -247,10 +250,12 @@ def iniciar(myEvent, myEventPausa):
             if not myEvent.is_set():
                 return
     info.printinfo("Evento finalizado.")
+    acoes_person.deslogar(myEvent, myEventPausa)
 
 def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=False):
     global fila_prioridade
     if not myEvent.is_set():
+        acoes_person.deslogar(myEvent, myEventPausa)
         return True
     verificar_pausa(myEventPausa)
     houve_falha_conexao = acoes_person.verificar_erro_conexao(myEvent, myEventPausa)

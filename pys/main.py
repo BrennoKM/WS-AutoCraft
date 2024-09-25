@@ -7,6 +7,7 @@ import pg_simplificado as pgs
 import init as init
 import info as info
 import constantes as const
+import telegram_bot as tb
 
 
 
@@ -90,7 +91,10 @@ def sleep_with_check(duration):
             break
         time.sleep(interval)
 
-
+def salvar_log_loop():
+    while True:
+        time.sleep(600)
+        info.salvar_log(resetar=False)
 
 global myEvent
 myEvent = threading.Event()
@@ -105,9 +109,13 @@ global myEventPausa
 myEventPausa = threading.Event()
 myEventPausa.clear()
 
+tb.iniciar_bot(myEvent, myEventPausa)
 # th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
 # th.start()
 # myEvent.set()
+
+th_log = threading.Thread(target=salvar_log_loop)
+th_log.start()
 
 th_l = threading.Thread(target=listener)
 th_l.start()

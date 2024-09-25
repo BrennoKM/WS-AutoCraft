@@ -158,8 +158,6 @@ def verificar_erro_conexao(myEvent, myEventPausa):
 
 ## 2.2 Verificar se está na tela de login
 def verificar_tela_login(myEvent, myEventPausa):
-    if not myEvent.is_set():
-        return
     verificar_pausa(myEventPausa)
     caminho_popup_sair = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_sair.png"
     alvo_sair = pgs.encontrar_alvo(caminho_popup_sair, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_SAIR)
@@ -503,8 +501,16 @@ def fechar_menu_bolsa(myEvent, myEventPausa):
 
 ## 9. deslogar
 def deslogar(myEvent, myEventPausa):
-    if not myEvent.is_set():
-        return
+    fechar_menu_craft(myEvent, myEventPausa)
+    fechar_menu_bolsa(myEvent, myEventPausa)
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
     verificar_pausa(myEventPausa)
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')

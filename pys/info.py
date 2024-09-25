@@ -33,10 +33,11 @@ def printinfo(texto, erro=False, enviar_msg=False):
         msg = msg.replace(f"Mensagem:        <'{texto}'>", f"\033[92mMensagem:        <'{texto}'>\033[0m")
     print(msg)
 
-def salvar_log():
+def salvar_log(resetar=True):
     global log
     es.salvar_log(log)
-    log = ''
+    if resetar:
+        log = ''
 
 tb.verificar_variaveis_ambiente(printinfo)
 
