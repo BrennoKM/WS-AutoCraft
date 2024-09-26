@@ -3,8 +3,12 @@ import threading
 from dotenv import load_dotenv
 import os
 import time
+import tempo
 import info
 import init
+import entrada_saida as es
+import constantes as const
+import json
 
 
 TOKEN = ''
@@ -79,7 +83,7 @@ def get_updates(offset=None):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Erro ao obter atualizações.")
+        # info.printinfo(f"Erro ao obter atualizações.")
         return None
 
 def process_updates(updates, myEvent, myEventPausa):
@@ -98,33 +102,8 @@ def process_updates(updates, myEvent, myEventPausa):
                 else:
                     send_message(chat_id, "Você não está autorizado a usar este comando.")
 
-def process_command(text, chat_id, myEvent, myEventPausa):
-    ## nesse ponto já se pressupoe que o chat_id é autorizado
-    if text == "/start":
-        send_message(chat_id, "Bem vindo ao WS-AutoCraft, verifique o menu para enviar comandos.", info.printinfo)
-        info.printinfo(f"Novo /start no bot com chat_id: {chat_id}", False, True)
-    elif text == "/starttask":
-        info.printinfo("Bot de craft foi iniciado remotamente.", False, True)
-        send_telegram_message("Task de craft iniciado.", info.printinfo)
-        if not myEvent.is_set():
-            myEvent.set()
-        th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
-        th.start()
-    elif text == "/stoptask":
-        info.printinfo("Bot de craft foi encerrado remotamente.", False, True)
-        send_telegram_message("Task de craft encerrado.", info.printinfo)
-        myEvent.clear()
-        time.sleep(2)
-        info.salvar_log(resetar=False)
 
-    elif text == "/pause":
-        myEventPausa.set()
-        info.printinfo("Bot foi pausado remotamente.", False, True)
-        send_telegram_message("Task pausado.", info.printinfo)
-    elif text == "/resume":
-        myEventPausa.clear()
-        info.printinfo("Bot foi despausado remotamente remotamente.", False, True)
-        send_telegram_message("Task despausado.", info.printinfo)
+
 
 def listen_for_commands(myEvent, myEventPausa):
     offset = None
@@ -137,6 +116,126 @@ def listen_for_commands(myEvent, myEventPausa):
                 offset = updates["result"][-1]["update_id"] + 1
         time.sleep(1)
 
+def process_command(text, chat_id, myEvent, myEventPausa):
+    ## nesse ponto já se pressupoe que o chat_id é autorizado
+    if text == "/start":
+        send_message(chat_id, "Bem vindo ao WS-AutoCraft, verifique o menu para enviar comandos.", info.printinfo)
+        info.printinfo(f"Novo /start no bot com chat_id: {chat_id}", False, True)
+    elif text == "/starttask":
+        send_telegram_message("Task de craft iniciada.", info.printinfo)
+        info.printinfo("Bot de craft foi iniciado remotamente.", False, True)
+        if not myEvent.is_set():
+            myEvent.set()
+        th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
+        th.start()
+    elif text == "/stoptask":
+        send_telegram_message("Task de craft encerrada.", info.printinfo)
+        info.printinfo("Bot de craft foi encerrado remotamente.", False, True)
+        myEvent.clear()
+        time.sleep(2)
+        info.salvar_log(resetar=False)
+
+    elif text == "/pause":
+        send_telegram_message("Task pausada.", info.printinfo)
+        info.printinfo("Bot foi pausado remotamente.", False, True)
+        myEventPausa.set()
+    elif text == "/resume":
+        send_telegram_message("Task despausada.", info.printinfo)
+        info.printinfo("Bot foi despausado remotamente remotamente.", False, True)
+        myEventPausa.clear()
+
+    elif text == "/printqueue":
+        info.printinfo("Comando de printqueue foi acionado remotamente.")
+        init.print_fila(fila_detalhada=True)
+    
+    elif text == "/printtask":
+        info.printinfo("Comando de printtask foi acionado remotamente.")
+        dados = es.carregar_json(f'{const.PATH_TASK}')
+        formatted_dados = json.dumps(dados, separators=(',', ':'))
+        formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n]\n}\n')
+        
+
+
+
+        send_telegram_message(formatted_dados, info.printinfo)
+
+
+    elif text.startswith("/edittask"):
+
+        info.printinfo("Comando de edittask foi acionado remotamente.")
+        json_str = text[len("/edittask"):].strip()
+        
+        try:
+            novos_dados = json.loads(json_str)
+        except json.JSONDecodeError:
+            exemplo_json = {
+                "nicknames": ["nomePersonagem"],
+                "tempo_restante": [[0, 0, 0]],
+                "itens": ["nome_item"],
+                "slots_disponiveis": [2],
+                "reinserir_na_fila": [True],
+                "tempo_espera_inicial": [0, 0, 0]
+            }
+            formatted_dados = json.dumps(exemplo_json, separators=(',', ':'))
+            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n]\n}\n')
+            send_telegram_message(
+                f"Formato de JSON inválido.\nUse: /edittask {formatted_dados}",
+                info.printinfo
+            )
+            return
+        
+        dados = es.carregar_json(f'{const.PATH_TASK}')
+        
+        dados.update(novos_dados)
+        
+        with open(f'{const.PATH_TASK}', 'w') as f:
+            formatted_dados = json.dumps(dados, separators=(',', ':'))
+            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n]\n}\n')
+            f.write(formatted_dados)
+        
+        send_telegram_message("Tasks foram atualizadas.", info.printinfo)
+        info.printinfo("Tasks foram atualizadas.")
+    
+    elif text.startswith("/addtask"):
+        info.printinfo("Comando de addtask foi acionado remotamente.")
+        json_str = text[len("/addtask"):].strip()
+
+        try:
+            nova_tarefa = json.loads(json_str)
+        except json.JSONDecodeError:
+            exemplo_json = {
+                "nicknames": ["nomePersonagem"],
+                "tempo_restante": [[0, 0, 0]],
+                "itens": ["nome_item"],
+                "slots_disponiveis": [2],
+                "reinserir_na_fila": [True],
+            }
+            formatted_dados = json.dumps(exemplo_json, separators=(',', ':'))
+            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n]\n}\n')
+            send_telegram_message(
+                f"Formato de JSON inválido.\nUse: /addtask {formatted_dados}",
+                info.printinfo
+            )
+            return
+
+        # Adicionar a nova tarefa usando a função enqueue
+        for i in range(len(nova_tarefa["nicknames"])):
+            nick = nova_tarefa["nicknames"][i]
+            tempo_restante = nova_tarefa["tempo_restante"][i]
+            tempo_espera = time.time() + tempo.converter_para_segundos(tempo_restante)
+            time.sleep(0.1)
+            item = nova_tarefa['itens'][i]
+            slots_disponiveis = nova_tarefa["slots_disponiveis"][i]
+            reinserir_na_fila = nova_tarefa["reinserir_na_fila"][i]
+            init.add_task(nick, tempo_espera+2, item, slots_disponiveis, reinserir_na_fila, requisisao_bot=True)
+
+        send_telegram_message("Nova(s) task(s) adicionada(s).", info.printinfo)
+        info.printinfo("Uma ou mais tasks foram adicionadas via bot do telegram.")
+        time.sleep(2)
+        init.print_fila()
 
 def iniciar_bot(myEvent, myEventPausa):
     verificar_variaveis_ambiente(print)

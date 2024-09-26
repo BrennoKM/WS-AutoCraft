@@ -93,8 +93,8 @@ def sleep_with_check(duration):
 
 def salvar_log_loop():
     while True:
-        time.sleep(600)
-        info.salvar_log(resetar=False)
+        time.sleep(3600)
+        info.salvar_log(resetar=True)
 
 global myEvent
 myEvent = threading.Event()
@@ -103,7 +103,7 @@ myEvent.clear()
 global myEventAtalho
 myEventAtalho = threading.Event()
 myEventAtalho.set()
-info.printinfo("Os atalhos estão ativados:\n\tK\t => inicia a task\n\tL\t => pausa a task\n\tEsc\t => encerra a task\n\tAlt Gr\t => ativa/desativa os atalhos")
+info.printinfo("Os atalhos estão ativados:\n\tK\t => inicia a task\n\tL\t => pausa a task\n\tEsc\t => encerra a task\n\tCtrl_r\t => ativa/desativa os atalhos")
 
 global myEventPausa
 myEventPausa = threading.Event()

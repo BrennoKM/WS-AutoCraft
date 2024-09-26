@@ -4,20 +4,9 @@ import constantes as const
 import threading
 import time
 import acoes_personagem as acoes_person
+from fila_prioridade import Fila_prioridade as Filap
+import tempo
 
-
-def converter_para_segundos(tempo):
-    dias, horas, minutos = tempo
-    total_segundos = dias * 86400 + horas * 3600 + minutos * 60
-    return total_segundos
-
-def converter_de_segundos(segundos):
-    dias = segundos // 86400
-    segundos_restantes = segundos % 86400
-    horas = segundos_restantes // 3600
-    segundos_restantes %= 3600
-    minutos = segundos_restantes // 60
-    return dias, horas, minutos
 
 # # Exemplo de uso
 # tempo = [0, 2, 0]  # _ dias, _ horas, _ minutos
@@ -28,41 +17,34 @@ def converter_de_segundos(segundos):
 # print(f"Tempo original: {tempo_original}")
 
 primeira_execucao = True
-fila_prioridade = []
+fila_prioridade = Filap()
 nicknames = []
 
 def primeira_espera(espera_inicial, myEvent, myEventPausa):
     global primeira_execucao
     if primeira_execucao:
-        segundos = converter_para_segundos(espera_inicial)
+        segundos = tempo.converter_para_segundos(espera_inicial)
         if segundos > 0:
             info.printinfo("Iniciando espera inicial.")
             sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=False)
             info.printinfo("Espera inicial terminou.")
         primeira_execucao = False
 
-def print_fila(fila):
+def print_fila(fila=None, fila_detalhada=False):
     global nicknames
-    lista = []
-    nicks = []
-    for f in fila:
-        personagem = f[0]
-        tempo = f[1]
-        tempo_restante = tempo - time.time()
-        lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos")
-        nicks.append(personagem)
-    info.printinfo("Fila de prioridade:" + "".join(lista), False, True)
-    if nicks.__len__() < nicknames.__len__():
-        for nick in nicknames:
-            if nick not in nicks:
-                info.printinfo(f"Personagem {nick} está sendo a prioridade.", False, True)
-                break
-    time.sleep(2)
+    fila = fila_prioridade
+    fila.print_queue(nicknames, fila_detalhada)
+
+def add_task(nickname, tempo_restante, item, slots_disponiveis, reinserir_na_fila, requisisao_bot=False):
+    global fila_prioridade
+    fila_prioridade.enqueue(nickname, tempo_restante, item, slots_disponiveis, reinserir_na_fila, requisisao_bot=True)
+    
 
 def iniciar(myEvent, myEventPausa):
     global fila_prioridade
     global nicknames
-    fila_prioridade = []
+    if fila_prioridade.has_novas_tasks() == False:
+        fila_prioridade.reset()
     acoes_person.carregar_craft_categorias()
     # nicknames =        ["Jikininki", "Scalaxy", "Waxius", "Phormid", "Aqsafada", "Kobernn"]
     # tempo_restante =   [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -73,14 +55,23 @@ def iniciar(myEvent, myEventPausa):
     # info.printinfo(f"Nicknames: {nicknames}")
     tempo_restante = dados['tempo_restante']
     itens = dados['itens']
+    slots_disponiveis = dados['slots_disponiveis']
+    reinserir_na_fila = dados['reinserir_na_fila']
 
     if tempo_restante.__len__() < nicknames.__len__():
         for _ in range(nicknames.__len__() - tempo_restante.__len__()):
             tempo_restante.append([0, 0, 0])
     
+    if slots_disponiveis.__len__() < nicknames.__len__():
+        for _ in range(nicknames.__len__() - slots_disponiveis.__len__()):
+            slots_disponiveis.append(-1)
+    
+    if reinserir_na_fila.__len__() < nicknames.__len__():
+        for _ in range(nicknames.__len__() - reinserir_na_fila.__len__()):
+            reinserir_na_fila.append(False)
 
     espera_inicial = dados['tempo_espera_inicial']
-    primeira_espera(espera_inicial, myEvent, myEventPausa)
+    primeira_espera(espera_inicial[0], myEvent, myEventPausa)
 
     personagens = es.filtrar_json(nicknames, "nickname", f'{const.PATH_CONSTS}personagens.json')
     # print(personagens)
@@ -93,58 +84,80 @@ def iniciar(myEvent, myEventPausa):
     
     verificar_pausa(myEventPausa)
 
-    
-    for i, personagem in enumerate(personagens):
-        # info.printinfo(f"Adicionando {personagem['nickname']} na fila de prioridade.")
-        tempo_espera = time.time() + converter_para_segundos(tempo_restante[i])
-        time.sleep(0.1)
-        fila_prioridade.append([personagem['nickname'], tempo_espera+2])
+    fila_prioridade.init(nicknames, tempo_restante, itens, slots_disponiveis, reinserir_na_fila)
+  
+    time.sleep(0.1)
 
     # info.printinfo(f"Fila de prioridade: {fila_prioridade}")
-    fila_prioridade.sort(key=lambda x: x[1])
+    # fila_prioridade.sort(key=lambda x: x[1])
     # info.printinfo(f"Fila de prioridade ordenada: {fila_prioridade}")
 
     while myEvent.is_set():
+        if fila_prioridade.has_novas_tasks() == True:
+            info.printinfo("Novas task foram adicionadas, atualizando a lista de personagens e itens.")
+            novos_nicks, novos_itens = fila_prioridade.get_novas_tasks()
+            for nick in novos_nicks:
+                nicknames.append(nick)
+            for item in novos_itens:
+                itens.append(item)
+            # info.printinfo(f"Nicknames: {nicknames}")
+            # info.printinfo(f"Itens: {itens}")
+            personagens = es.filtrar_json(nicknames, "nickname", f'{const.PATH_CONSTS}personagens.json')
+            # info.printinfo(personagens)
+
+            crafts = es.filtrar_json(itens, "item", f'{const.PATH_CONSTS}/crafts.json')
+            # info.printinfo(crafts)
+
         espera_diminuida = False
         houve_falha_conexao = False
         nova_duracao = [0, 0, 0]
         
-        fila_prioridade.sort(key=lambda x: x[1])
+        # fila_prioridade.sort()
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return
         print_fila(fila_prioridade)
 
-        prioridade = fila_prioridade[0]
-        info.printinfo(f"Prioridade da vez: {prioridade[0]}")
-        fila_prioridade.pop(0)
+        prioridade = fila_prioridade.peek()
+        # info.printinfo(f"Prioridade da vez: {prioridade[0]}")
+        # info.printinfo(f"Prioridade: {prioridade}")
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return
         time.sleep(0.1)
         tempo_sleep = prioridade[1] - time.time()
         info.printinfo(f"Tempo de espera para {prioridade[0]}: {tempo_sleep:.2f} segundos.", False, True)
-        sleep_with_check(tempo_sleep, myEvent, myEventPausa)
+        finalizou, tempo_restante_sleep = sleep_with_check(tempo_sleep, myEvent, myEventPausa)
+        if finalizou == False:
+            info.printinfo(f"Tempo de espera foi interrompido. Restam {tempo_restante_sleep:.2f} segundos para o personagem {prioridade[0]}.", False, True)
+            fila_prioridade.dequeue()
+            fila_prioridade.enqueue(prioridade[0], time.time() + tempo_restante_sleep, prioridade[2], prioridade[3], prioridade[4])
+            continue
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return
-        index = -1
+        index_persoangem = -1
         for i, personagem in enumerate(personagens):
             if personagem['nickname'] == prioridade[0]:
-                index = i
+                index_persoangem = i
                 break
         index_craft = -1
+        # info.printinfo(f"Prioridade[2]: {prioridade[2]}")
         for i, craft in enumerate(crafts):
             # info.printinfo(f"Craft: {craft}")
             # info.printinfo(f"Item: {itens[index]}")
-            if craft['item'] == itens[index]:
+            if craft['item'] == prioridade[2]:
                 index_craft = i
                 break
 
-        personagem = personagens[index]
+        personagem = personagens[index_persoangem]
         craft = crafts[index_craft]
+        ## prioridade[3] é a quantidade de slots disponiveis
+        personagem['slots'] = personagem['slots'] if prioridade[3] == -1 else prioridade[3]
+
+        info.printinfo(f"Personagem: {personagem['nickname']}, Craft: {craft['item']}, Slots: {personagem['slots']}, Reinserir na fila: {prioridade[4]}", False, True)
         ##
         ##
         ##
@@ -160,7 +173,7 @@ def iniciar(myEvent, myEventPausa):
         if not myEvent.is_set():
                 return
         acoes_person.logar(personagem, myEvent, myEventPausa)
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
         acoes_person.fechar_popup(myEvent, myEventPausa)
 
         # contador_desmontados = desmontar(personagem, craft['item'], (5), myEvent, myEventPausa) ## apenas para testes, não descomentar
@@ -169,12 +182,19 @@ def iniciar(myEvent, myEventPausa):
         if not myEvent.is_set():
             acoes_person.deslogar(myEvent, myEventPausa)
             return
-        duracao, contador = craftar(personagem, craft, myEvent, myEventPausa)
+        # info.printinfo(f"Indo craftar o item: {craft}")
 
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        duracao, contador_coletados, contador_iniciados = craftar(personagem, craft, myEvent, myEventPausa)
+
+        slots_totais_disponiveis = personagem['slots']
+        qnt_faltantes = personagem['slots'] - contador_iniciados
+        info.printinfo(f"Slots totais disponíveis: {slots_totais_disponiveis}, Slots iniciados: {contador_iniciados}, Slots faltantes: {qnt_faltantes}")
+        
+
+
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
 
         if duracao != craft['duração_dia_hora_minuto']:
-            # if personagem['nickname'] == nicknames[0]: ## gambiarra pois por enquanto todos tempos valem pra todos personagens
             info.printinfo("Ajustando para esperar menos tempo.")
             espera_diminuida = True
             nova_duracao = duracao
@@ -183,51 +203,53 @@ def iniciar(myEvent, myEventPausa):
             acoes_person.deslogar(myEvent, myEventPausa)
             return
         
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
 
-        if contador < 0 and craft['precisa_desmontar'] == False: 
+        if contador_coletados < 0 and craft['precisa_desmontar'] == False: 
             info.printinfo("Problema ao craftar por falta de recursos, ajustando para tempo para esperar menos.", erro=True)
-            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
-            temp_duracao = converter_de_segundos(segundos*0.1)
+            segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+            temp_duracao = tempo.converter_de_segundos(segundos*0.1)
             espera_diminuida = True
             nova_duracao = temp_duracao
 
-        if contador < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
+
+        if contador_coletados < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
             info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.")
-            contador_desmontados = desmontar(personagem, craft['item'], (contador*-1), myEvent, myEventPausa)
+            contador_desmontados = desmontar(personagem, craft['item'], (contador_coletados*-1), myEvent, myEventPausa)
             acoes_person.fechar_popup(myEvent, myEventPausa)
             verificar_pausa(myEventPausa)
             info.printinfo(f"Foram desmontados {contador_desmontados} itens.")
             
-            segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
-            temp_duracao = converter_de_segundos(segundos*0.1)
+            segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+            temp_duracao = tempo.converter_de_segundos(segundos*0.1)
             if contador_desmontados > 0: ## as vezes retorna None e ainda não entendi o motivo
                 info.printinfo("Desmontagem concluída, tentando craftar novamente.")
-                temp_duracao, temp_contador = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
-                if temp_contador < 0:
-                    segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
-                    temp_duracao = converter_de_segundos(segundos*0.1)
+                temp_duracao, temp_contador_coletados, temp_contador_iniciados = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
+                qnt_faltantes = personagem['slots'] - temp_contador_iniciados - contador_iniciados
+                if temp_contador_coletados < 0:
+                    segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+                    temp_duracao = tempo.converter_de_segundos(segundos*0.1)
             if temp_duracao != craft['duração_dia_hora_minuto']:
                 info.printinfo("Ajustando para esperar menos tempo.")
                 espera_diminuida = True
                 nova_duracao = temp_duracao
 
 
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
 
-        if(craft['precisa_desmontar'] == True and contador > 0):
-            info.printinfo(f"Indo desmontar {contador} itens coletados.")
-            contador_desmontados = desmontar(personagem, craft['item'], contador, myEvent, myEventPausa)
+        if(craft['precisa_desmontar'] == True and contador_coletados > 0):
+            info.printinfo(f"Indo desmontar {contador_coletados} itens coletados.")
+            contador_desmontados = desmontar(personagem, craft['item'], contador_coletados, myEvent, myEventPausa)
             info.printinfo(f"Desmontados {contador_desmontados} itens.")
 
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
             acoes_person.deslogar(myEvent, myEventPausa)
             return
         acoes_person.fechar_popup(myEvent, myEventPausa)
-        if verificar_erro_conexao(personagem, myEvent, myEventPausa, True): continue
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
         acoes_person.deslogar(myEvent, myEventPausa)
 
 
@@ -235,16 +257,35 @@ def iniciar(myEvent, myEventPausa):
         if not myEvent.is_set():
                 return
         if myEvent.is_set():
+            if prioridade[4] == False and espera_diminuida == False: ## não é para reinserir na fila
+                info.printinfo(f"Serviço para {personagem['nickname']} finalizado. Sem reinserção na fila.")
+                continue
             segundos = 0
             if espera_diminuida is False:
-                segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+                segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
             else:
-                segundos = converter_para_segundos(nova_duracao)
-            tempo_temp = converter_de_segundos(segundos)
-            info.printinfo(f"Serviço para {personagem['nickname']} finalizado.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.")
-            # info.printinfo(f"Duração = {nova_duracao}")
-            # sleep_with_check(segundos, myEvent, myEventPausa)
-            fila_prioridade.append([personagem['nickname'], time.time() + segundos])
+                segundos = tempo.converter_para_segundos(nova_duracao)
+            tempo_temp = tempo.converter_de_segundos(segundos)
+
+            # info.printinfo(f"qnt_faltantes: {qnt_faltantes}")
+            if qnt_faltantes == 0:
+                segundos_originais = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+                temp_segundos = craft['duração_dia_hora_minuto']
+                info.printinfo(f"Serviço para {personagem['nickname']} finalizado.\n\tVoltando em: {temp_segundos[0]} dias, {temp_segundos[1]} horas e {temp_segundos[2]} minutos.\n\tTempo em segundos: {segundos_originais:.2f}.", False, True)
+                temp_segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+                fila_prioridade.dequeue()
+                fila_prioridade.enqueue(personagem['nickname'], time.time() + temp_segundos, prioridade[2], personagem['slots'], prioridade[4])
+
+            else:
+                info.printinfo(f"Foram iniciados {slots_totais_disponiveis - qnt_faltantes} slots com sucesso, e {qnt_faltantes} slots não foram inciados. A fila será bifucarda.", erro=True, enviar_msg=True)
+                info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+                fila_prioridade.dequeue()
+                fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, prioridade[2], qnt_faltantes, prioridade[4])
+                
+                if slots_totais_disponiveis - qnt_faltantes > 0 and prioridade[4] == True:
+                    temp_segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+                    fila_prioridade.enqueue(personagem['nickname'], time.time() + temp_segundos, craft['item'], slots_totais_disponiveis - qnt_faltantes, prioridade[4])
+
             time.sleep(3)
             verificar_pausa(myEventPausa)
             if not myEvent.is_set():
@@ -252,7 +293,7 @@ def iniciar(myEvent, myEventPausa):
     info.printinfo("Evento finalizado.")
     acoes_person.deslogar(myEvent, myEventPausa)
 
-def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=False):
+def verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, reinserir_na_fila=False):
     global fila_prioridade
     if not myEvent.is_set():
         acoes_person.deslogar(myEvent, myEventPausa)
@@ -262,7 +303,7 @@ def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=
     if houve_falha_conexao:
         if reinserir_na_fila:
             info.printinfo(f"Houve falha de conexão durante a execução do personagem {personagem['nickname']}, relogando para tentar novamente...", erro=True, enviar_msg=True)
-            tempo_maior_prioridade_na_fila = fila_prioridade[0][1]
+            tempo_maior_prioridade_na_fila = fila_prioridade.peek()[1]
             segundos = (tempo_maior_prioridade_na_fila - time.time()) * 1.2 ## 20% a mais prioridade para furar a fila
             segundos = segundos if segundos < 0 else segundos * -1 ## se for positivo, multiplica por -1 para ficar negativo
             # tempo_temp = converter_de_segundos(segundos)
@@ -270,23 +311,23 @@ def verificar_erro_conexao(personagem, myEvent, myEventPausa, reinserir_na_fila=
             info.printinfo(f"O {personagem['nickname']} foi reinserido na fila com prioridade em segundos: {segundos:.2f}.")
             # info.printinfo(f"Duração = {nova_duracao}")
             # sleep_with_check(segundos, myEvent, myEventPausa)
-            fila_prioridade.append([personagem['nickname'], time.time() + segundos])
+            fila_prioridade.dequeue()
+            fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, craft['item'], personagem['slots'], True)
         return True
     return False
 
 def craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
     acoes_person.abrir_menu_craft(myEvent, myEventPausa)
-    duracao, contador = acoes_person.iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa)
-    if verificar_erro_conexao(personagem, myEvent, myEventPausa): return duracao, contador
+    duracao, contador_coletados, contador_iniciados = acoes_person.iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa)
+    if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa): return duracao, contador_coletados, contador_iniciados
     verificar_pausa(myEventPausa)
-    if duracao is None and contador is None:
+    if duracao is None:
         info.printinfo("Erro ao craftar, ajustando para tempo original.", erro=True)
         duracao = craft['duração_dia_hora_minuto']
-        contador = 0
     acoes_person.fechar_menu_craft(myEvent, myEventPausa)
     acoes_person.fechar_popup(myEvent, myEventPausa)
     verificar_pausa(myEventPausa)
-    return duracao, contador
+    return duracao, contador_coletados, contador_iniciados
 
 def desmontar(personagem, craft, contador, myEvent, myEventPausa):
     contador_desmontados = 0
@@ -294,7 +335,7 @@ def desmontar(personagem, craft, contador, myEvent, myEventPausa):
     acoes_person.abrir_aba_equipamento(myEvent, myEventPausa)
     verificar_pausa(myEventPausa)
     contador_desmontados = acoes_person.encontrar_itens_e_desmontar(craft, contador, myEvent, myEventPausa)
-    if verificar_erro_conexao(personagem, myEvent, myEventPausa): return contador_desmontados
+    if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa): return contador_desmontados
     verificar_pausa(myEventPausa)
     acoes_person.fechar_menu_bolsa(myEvent, myEventPausa)
     # if contador_desmontados is None:
@@ -305,10 +346,10 @@ def desmontar(personagem, craft, contador, myEvent, myEventPausa):
 def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
     global fila_prioridade
     if segundos <= 0:
-        return
+        return True, 0
 
-    tempo = converter_de_segundos(segundos)
-    info.printinfo(f"Aguardando por {tempo[0]} dias, {tempo[1]} horas e {tempo[2]} minutos.", False, True)
+    temp_tempo = tempo.converter_de_segundos(segundos)
+    info.printinfo(f"Aguardando por {temp_tempo[0]} dias, {temp_tempo[1]} horas e {temp_tempo[2]} minutos.", False, True)
     intervalo = 1  # Intervalo de verificação em segundos
     intervalo_mensagem = 300  # Intervalo para imprimir a mensagem em segundos
     contador_mensagem = 0
@@ -324,10 +365,14 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
         time.sleep(intervalo)
         tempo_decorrido = time.time() - tempo_inicial
 
+        if fila_prioridade.has_novas_tasks() == True:
+            info.printinfo("Nova(s) task(s) adicionada(s) enquanto está em espera. Atualizando fila de prioridade.")
+            return False, segundos - int(tempo_decorrido)
+
         contador_mensagem += intervalo
         if contador_mensagem >= intervalo_mensagem:
             contador_mensagem = 0
-            tempo_restante = converter_de_segundos(segundos - int(tempo_decorrido))
+            tempo_restante = tempo.converter_de_segundos(segundos - int(tempo_decorrido))
             if imprimir_fila:
                 print_fila(fila_prioridade)
             info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.", False, True)
@@ -338,13 +383,14 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
             while myEventPausa.is_set():
                 if not myEvent.is_set():
                     info.printinfo("Tempo de espera foi cancelado durante a pausa.")
-                    return
+                    return False, segundos - int(tempo_decorrido)
                 time.sleep(intervalo)
                 tempo_decorrido = time.time() - tempo_inicial
                 contador_mensagem += intervalo
 
     if myEvent.is_set():
         info.printinfo("Tempo de espera finalizado.")
+        return True, 0
 
 def verificar_pausa(myEventPausa):
     while myEventPausa.is_set(): pass

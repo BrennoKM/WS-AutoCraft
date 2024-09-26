@@ -27,7 +27,7 @@
         "duração_dia_hora_minuto": [0, 6, 10] 
     },
     {
-        "item": "material_bracelete_1",
+        "item": "material_bracelete_1_1",
         "craft": "bracelete",
         "especial": false,
         "melhoria": false,
@@ -36,7 +36,7 @@
         "duração_dia_hora_minuto": [0, 0, 10] 
     },
     {
-        "item": "material_bracelete_2",
+        "item": "material_bracelete_1_2",
         "craft": "bracelete",
         "especial": false,
         "melhoria": false,
@@ -45,7 +45,7 @@
         "duração_dia_hora_minuto": [0, 0, 15] 
     },
     {
-        "item": "material_bracelete_3",
+        "item": "material_bracelete_1_3",
         "craft": "bracelete",
         "especial": false,
         "melhoria": false,
@@ -54,7 +54,7 @@
         "duração_dia_hora_minuto": [0, 0, 20] 
     },
     {
-        "item": "material_capote_1",
+        "item": "material_capote_1_1",
         "craft": "capote",
         "especial": false,
         "melhoria": false,
@@ -63,7 +63,7 @@
         "duração_dia_hora_minuto": [0, 0, 10] 
     },
     {
-        "item": "material_capote_2",
+        "item": "material_capote_1_2",
         "craft": "capote",
         "especial": false,
         "melhoria": false,
@@ -72,7 +72,7 @@
         "duração_dia_hora_minuto": [0, 0, 15] 
     },
     {
-        "item": "material_capote_3",
+        "item": "material_capote_1_3",
         "craft": "capote",
         "especial": false,
         "melhoria": false,
@@ -81,7 +81,7 @@
         "duração_dia_hora_minuto": [0, 0, 20] 
     },
     {
-        "item": "material_longo_alcance_1",
+        "item": "material_longo_alcance_1_1",
         "craft": "longo_alcance",
         "especial": false,
         "melhoria": false,
@@ -90,7 +90,7 @@
         "duração_dia_hora_minuto": [0, 0, 10] 
     },
     {
-        "item": "material_longo_alcance_2",
+        "item": "material_longo_alcance_1_2",
         "craft": "longo_alcance",
         "especial": false,
         "melhoria": false,
@@ -99,7 +99,7 @@
         "duração_dia_hora_minuto": [0, 0, 15] 
     },
     {
-        "item": "material_longo_alcance_3",
+        "item": "material_longo_alcance_1_3",
         "craft": "longo_alcance",
         "especial": false,
         "melhoria": false,
