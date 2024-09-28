@@ -24,7 +24,8 @@ def printinfo(texto, erro=False, enviar_msg=False):
     msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: {hora_atual}"
     log = f'{log}\n{msg}'
     if enviar_msg == True:
-        tb.send_telegram_message(msg, printinfo_callback=printinfo)
+        msg_tb = msg.replace(f"Mensagem:        <'{texto}'>",f"\nMensagem:        \n\n<'\n\n{texto}\n\n'>\n")
+        tb.send_telegram_message(msg_tb, printinfo_callback=printinfo)
     msg = f"Arquivo:<'{nome_arquivo}'> Classe:<'{nome_classe}'> Função/Método:<'{nome_contexto}'> Linha:<'{linha_atual}'>\n Mensagem:        <'{texto}'>\n  Data: {data_atual} Hora: \033[95m{hora_atual}\033[0m"
 
     if erro:

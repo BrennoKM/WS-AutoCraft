@@ -9,7 +9,7 @@
 	], 
 "itens":
 	[
-		"bracelete_1_16", "bracelete_1_16", "bracelete_1_16", "balestra_1_10", "balestra_1_10", "balestra_1_10"
+		"bracelete_1_10", "bracelete_1_10", "bracelete_1_10", "balestra_1_10", "balestra_1_10", "balestra_1_10"
 	], 
 "slots_disponiveis":
 	[
@@ -22,5 +22,5 @@
 "tempo_espera_inicial":
 	[
 		[0, 0, 0]
-]
+	]
 }

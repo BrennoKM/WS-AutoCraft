@@ -168,8 +168,13 @@ def abrir_menu_craft(myEvent, myEventPausa):
 
 ## 4. iniciar todos slots
 def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
+
+    segundos_originais = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
+    nova_duracao_original = tempo.converter_de_segundos(segundos_originais*0.1)
+
     contador_coletados = 0
     contador_iniciados = 0
+    verificou_licenca = False
     if not myEvent.is_set():
         return [None, contador_coletados, contador_iniciados]
     verificar_pausa(myEventPausa)
@@ -195,9 +200,10 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
         for j in range(personagem['slots']):
             iniciou = False
             for i in range(3):
-                if verificar_erro_conexao(myEvent, myEventPausa): return [None, contador_coletados, contador_iniciados]
+                if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
                 time.sleep(0.5)
                 pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
+                time.sleep(2)
                 alvo_slot = pgs.encontrar_alvo(caminho_slot, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT_SLOTS)
                 
                 if alvo_slot is not None:
@@ -205,21 +211,23 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
                     pgs.clicar(2)
                     time.sleep(0.2)
                     verificar_pausa(myEventPausa)
-                    resultado = iniciar_craft(personagem, craft, myEvent, myEventPausa)
-                    if verificar_erro_conexao(myEvent, myEventPausa): return [None, contador_coletados, contador_iniciados]
+                    resultado = iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa)
+                    if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
                     if resultado is True:
                         info.printinfo("Um craft foi iniciado.")
                         contador_iniciados+=1
                         iniciou = True
+                        verificou_licenca = True
+                        time.sleep(2)
                     elif resultado is False:
                         info.printinfo("Houve algum problema ao tentar iniciar um craft.", erro=True)
-                        # segundos = converter_para_segundos(craft['duração_dia_hora_minuto'])
+                        # segundos = converter_para_segundos(craft['duracao_dia_hora_minuto'])
                         # nova_duracao = converter_de_segundos(segundos*0.1)
                         if segunda_tentativa == False:
-                            return [craft['duração_dia_hora_minuto'], (personagem['slots']*-3), contador_iniciados] ## multiplicado por -3 para que o contador seja negativo
+                            return [craft['duracao_dia_hora_minuto'], (personagem['slots']*-3), contador_iniciados] ## multiplicado por -3 para que o contador seja negativo
                             ## o contador negativo significa que ele vai tentar desmontar os itens para conseguir recursos
                         else:
-                            return [craft['duração_dia_hora_minuto'], contador_coletados, contador_iniciados]
+                            return [craft['duracao_dia_hora_minuto'], contador_coletados, contador_iniciados]
                     else:
                         info.printinfo("Não foi possível iniciar o craft.", erro=True)
 
@@ -244,22 +252,22 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
             iniciados_menor_que_slots = contador_iniciados < j+1 ## j+1 pois o contador inicia em 0 e o contador de iniciados precisa estar sempre um passo a frente
             if iniciados_menor_que_slots and segunda_tentativa == False:
             # if iniciou == False:
-                if verificar_erro_conexao(myEvent, myEventPausa): return [None, contador_coletados, contador_iniciados]
+                if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
                 info.printinfo(f"Não foi possível iniciar {personagem['slots'] - contador_iniciados} crafts no personagem {personagem['nickname']}.\n\tO tempo será diminuído para verificar novamente mais cedo.", erro=True)
             
-                segundos = tempo.converter_para_segundos(craft['duração_dia_hora_minuto'])
+                segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
                 nova_duracao = tempo.converter_de_segundos(segundos*0.1)
                 return [nova_duracao, contador_coletados, contador_iniciados]
             
         verificar_pausa(myEventPausa)
-        if verificar_erro_conexao(myEvent, myEventPausa): return [None, contador_coletados, contador_iniciados]
+        if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
         if segunda_tentativa == False:
-            info.printinfo(f'Todos os {contador_iniciados} slots foram iniciados corretamente para o personagem {personagem["nickname"]} e {contador_coletados} itens foram coletados.')
+            info.printinfo(f'Todos os {contador_iniciados} slots foram iniciados corretamente para o personagem {personagem["nickname"]} e {contador_coletados} itens foram coletados.', False, True)
         else:
-            info.printinfo(f"Iniciou {contador_iniciados} slots faltantes para o personagem {personagem['nickname']}.")
-        return [craft['duração_dia_hora_minuto'], contador_coletados, contador_iniciados]
+            info.printinfo(f"Iniciou {contador_iniciados} slots faltantes para o personagem {personagem['nickname']}.", False, True)
+        return [craft['duracao_dia_hora_minuto'], contador_coletados, contador_iniciados]
     else:
-        info.printinfo(f'O personagem {personagem["nickname"]} não possui o craft {craft["craft"]}.', erro=True)
+        info.printinfo(f'O personagem {personagem["nickname"]} não possui o craft {craft["craft"]}.', True, True)
         return [None, contador_coletados, contador_iniciados]
                
 ## 4.1 verificar conluidos (passo intermédiario)
@@ -298,7 +306,7 @@ def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
     return contador
 
 ## 4.2 iniciar craft (passo intermédiario)
-def iniciar_craft(personagem, craft, myEvent, myEventPausa):
+def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
     caminho_craft_alvo = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_{craft['craft']}.png'
     caminho_craft_iniciar_alvo = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_iniciar.png'
     caminho_popup_faltou_recurso = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_faltou_recurso.png'
@@ -327,8 +335,8 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
                 pgs.clicar(1)
                 pg.sleep(0.2)
             pg.sleep(0.3)
-            # if(craft['especial'] == True):  ## implementar a seleção de crafts especiais futuramente
-            #    return iniciar_craft_especial(personagem, craft, myEvent, myEventPausa)
+            if(craft['especial'] == True):  ## implementar a seleção de crafts especiais futuramente
+               return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa)
             for _ in range(craft['posicao'] + (craft_categorias[craft['craft']]["slots_especiais"] - 1)):
                 # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 if not myEvent.is_set():
@@ -336,10 +344,17 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
                 verificar_pausa(myEventPausa)
                 pg.press("down")
                 pg.sleep(0.1)
-            pg.press("f2")
-            pg.sleep(0.1)
             if(craft['melhoria'] == True):
-                # implementar a verificação caso o craft seja uma melhoria, para escolher um item na bolsa a ser melhorad
+                # implementar a verificação caso o craft seja uma melhoria, para escolher um item na bolsa a ser melhorado
+                verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa)
+                pg.sleep(2)
+                verificou_licenca = True
+            if verificou_licenca == False:
+                if verificar_licenca(craft, myEvent, myEventPausa) == False:
+                    return False
+                pg.sleep(2)
+            if (craft['melhoria'] == False):
+                pg.press("f2")
                 pg.sleep(0.1)
             alvo_popup_faltou_recurso = pgs.encontrar_alvo(caminho_popup_faltou_recurso, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA)
             if alvo_popup_faltou_recurso is not None:
@@ -371,7 +386,146 @@ def iniciar_craft(personagem, craft, myEvent, myEventPausa):
     time.sleep(0.5)
     verificar_pausa(myEventPausa)
     return False ## falso pois não inicou um craft
+
+## 4.3 verificar licença (passo intermédiario)
+def verificar_licenca(craft, myEvent, myEventPausa, primeiro_enter=True):
+    pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
+    if primeiro_enter == True:
+        pgs.press("enter")
+    pg.sleep(1.5)
+    licenca = craft['licenca']
+    alvo_licenca_atual = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_LICENCA}ancora_licenca_{licenca}.png', semelhanca=0.99, necessario=True, regiao=const.AREA_BOTAO_SELECIONAR_LICENCA)
+    if alvo_licenca_atual is None:
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        info.printinfo("Licença atual não é a certa. Escolhendo uma licença.")
+        pgs.mover_para(const.POS_BOTAO_SELECIONAR_LICENCA)
+        pg.sleep(0.3)
+        pgs.clicar(1)
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        pg.sleep(1)
+        pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
+        pg.sleep(1)
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        for _ in range(30): ## supondo 30 sets de licença na bag
+            if not myEvent.is_set():
+                return
+            verificar_pausa(myEventPausa)
+            pgs.press("right")
+            pg.sleep(0.3)
+            alvo_licenca = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_LICENCA}ancora_licenca_{licenca}_texto.png', semelhanca=0.99, necessario=False, regiao=const.AREA_CRAFT)
+            pg.sleep(0.2)
+            if alvo_licenca is not None:
+                info.printinfo("Licença correta encontrada.")
+                pg.press("enter")
+                pg.sleep(0.3)
+                return True
+        info.printinfo("Licença correta não encontrada, indo usar a licenca comum", erro=True)
+        for _ in range(30):
+            if not myEvent.is_set():
+                return
+            verificar_pausa(myEventPausa)
+            pgs.press("right")
+            pg.sleep(0.3)
+            alvo_licenca = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_LICENCA}ancora_licenca_1_texto.png', semelhanca=0.99, necessario=False, regiao=const.AREA_CRAFT)
+            pg.sleep(0.2)
+            if alvo_licenca is not None:
+                info.printinfo("Licença comum encontrada.")
+                pg.press("enter")
+                pg.sleep(0.3)
+                return True
+        info.printinfo("Licença comum não encontrada.", erro=True)
+        return False
+    if not myEvent.is_set(): return
+    info.printinfo("Licença correta já estava selecionada.")
+    pg.sleep(0.3)
+    verificar_pausa(myEventPausa)
+    return True
+
+
+## 4.4 verificar melhoria (passo intermédiario)
+def verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa):
+    if verificou_licenca == False:
+        verificar_licenca(craft, myEvent, myEventPausa)
+    pg.sleep(2)
+    pgs.press("f2")
+    alvo_alerta = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_alerta.png', semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    if alvo_alerta is not None:
+        info.printinfo("Alerta de melhoria encontrado. Escolhendo um item para melhorar.")
+        pg.press("enter")
+        pg.sleep(1)
+        pgs.press("f2")
+        pg.sleep(1)
+        return True
+    return False
+
+## 4.5 iniciar craft especial (passo intermédiario)
+def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa):
+    info.printinfo("Item especial vai ser craftado.")
+    pg.sleep(2)
+    slots_especiais = craft_categorias[craft['craft']]["slots_especiais"]
+    # info.printinfo(f"Range: {slots_especiais}")
+    caminho_requisistos = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_requisitos.png'
+    caminho_recursos = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_recursos.png'
+    caminho_produzido = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_produzido.png'
+    for i in range(slots_especiais):
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
         
+        pgs.press("enter")
+        pg.sleep(1)
+        alvo_requisitos = pgs.encontrar_alvo(caminho_requisistos, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.8, necessario=True, regiao=const.AREA_CRAFT)
+        pg.sleep(1)
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        if alvo_requisitos is not None and alvo_recursos is not None and alvo_produzido is not None:
+            info.printinfo("Craft especial encontrado.")
+            pg.sleep(1)
+            if verificou_licenca == False:
+                verificar_licenca(craft, myEvent, myEventPausa, primeiro_enter=False)
+            pg.sleep(2)
+            if not myEvent.is_set(): return
+            verificar_pausa(myEventPausa)
+            pgs.press("f2")
+            pg.sleep(0.3)
+            return True
+        pgs.press("f1")
+        pg.sleep(0.3)
+        pgs.press("down")
+    info.printinfo("O craft especial não está disponível.", erro=True)
+    pgs.press("up")
+    pg.sleep(0.3)
+    pgs.press("enter")
+    pg.sleep(0.3)
+    if not myEvent.is_set(): return
+    verificar_pausa(myEventPausa)
+    pgs.press("down")
+    pg.sleep(0.3)
+    pgs.press("down")
+    pg.sleep(0.3)
+    pgs.press("enter")
+    pg.sleep(1.5)
+    for j in range(craft['posicao']+1):
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        if j != 0:
+            pgs.press("down")
+        pg.sleep(0.1)
+    pg.sleep(0.3)
+    pgs.press("enter")
+    # while True:
+    #     info.printinfo("Vai pressionar f2 e substituir o craft.")
+    #     pg.sleep(10)
+    pgs.press("f2")
+    pg.sleep(0.3)
+    pgs.press("f2")
+    return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa)
+
+
 ## 5. fechar menu craft
 def fechar_menu_craft(myEvent, myEventPausa):
     if not myEvent.is_set():
@@ -424,7 +578,7 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
         for _ in range(3):
             if verificar_erro_conexao(myEvent, myEventPausa): return contador_desmontados
             pg.sleep(0.2)
-            alvo = pgs.encontrar_alvo(f'{const.PATH_IMGS_ITENS}{item}.png', semelhanca=0.8, regiao=const.AREA_BOLSA, center=True, necessario=True)
+            alvo = pgs.encontrar_alvo(f'{const.PATH_IMGS_ITENS}{item}.png', semelhanca=0.99, regiao=const.AREA_BOLSA, center=True, necessario=True)
             pg.sleep(0.25)
             if not myEvent.is_set():
                 return contador_desmontados
@@ -496,6 +650,7 @@ def fechar_menu_bolsa(myEvent, myEventPausa):
 def deslogar(myEvent, myEventPausa):
     fechar_menu_craft(myEvent, myEventPausa)
     fechar_menu_bolsa(myEvent, myEventPausa)
+    verificar_alerta(myEvent, myEventPausa)
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     if verificar_tela_login(myEvent, myEventPausa): return
@@ -514,6 +669,18 @@ def deslogar(myEvent, myEventPausa):
     pg.sleep(0.2)
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f2')
+
+## 9.1 verificando alerta
+def verificar_alerta(myEvent, myEventPausa):
+    caminho_alerta = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_alerta.png"
+    alvo_alerta = pgs.encontrar_alvo(caminho_alerta, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    if alvo_alerta is not None:
+        info.printinfo("Alerta encontrado.")
+        pg.sleep(0.2)
+        pg.press("enter")
+        pg.sleep(0.2)
+        return True
+    return False
 
 ## 0. pausando (passo opcional)
 def verificar_pausa(myEventPausa):

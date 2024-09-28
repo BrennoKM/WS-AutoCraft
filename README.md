@@ -35,8 +35,11 @@ o programa para que os itens pre-definidos sejam feitos automaticamente e repost
   - **'Esc'** - O bot será interrompido forçadamente.
   - **'L'** - O bot será pausado caso esteja rodando.
   - **'K'** - O bot será iniciado.
-- ### Atalhos especiais
   - **'Ctrl_r'** - Ativa/desativa os atalhos.
+- ### Atalhos especiais
+  - **'D'** - Marca um ponto na tela e printa a posição do mouse
+  - **'F'** - Faz um print com os dois ultimos pontos e salva na raiz
+  - **'G'** - Verifica se o print tirado está na tela e move o mouse até lá
 
 
 ## Visão Geral

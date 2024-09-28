@@ -36,7 +36,12 @@ def clicar(qnt):
 
 def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, necessario: bool = True, mover: bool = False, myEvent=None):
     if os.path.exists(path):
-        slot = pg.locateOnScreen(path, confidence=semelhanca, region=regiao)
+        try:
+            slot = pg.locateOnScreen(path, confidence=semelhanca, region=regiao)
+        except Exception as e:
+            info.printinfo(f'Except no PyAutoGui ao tentar localizar {path} na tela: {e}', True, True)
+            pg.sleep(3)
+            return None
         if myEvent is not None and not myEvent.is_set():
             return
         if(slot != None):
@@ -58,7 +63,12 @@ def encontrar_alvos(path, semelhanca=0.8, regiao = None, center: bool = True, ne
     if myEvent is not None and not myEvent.is_set():
         return
     if os.path.exists(path):
-        slots = pg.locateAllOnScreen(path, confidence=semelhanca, region=regiao)
+        try:
+            slots = pg.locateAllOnScreen(path, confidence=semelhanca, region=regiao)
+        except Exception as e:
+            info.printinfo(f'Except no PyAutoGui ao tentar localizar {path} na tela: {e}', True, True)
+            pg.sleep(3)
+            return None
         # info.printinfo(f'Alvos encontrados: {slots}')
         retorno = []
         if(slots != None):

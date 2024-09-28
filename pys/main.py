@@ -41,10 +41,12 @@ def on_release(key):
                 myEventAtalho.set()
                 info.printinfo("Atalhos ativados (Ctrl_r para ativar/desativar)")
         if myEventAtalho.is_set():
-
+            
             if key == keyboard.Key.esc:
                 info.printinfo("Task encerrada.")
                 myEvent.clear()
+                init.resetar_fila()
+                init.deslogar(myEvent, myEventPausa)
                 time.sleep(2)
                 info.salvar_log()
 
@@ -59,12 +61,14 @@ def on_release(key):
             if key.char == "l":
                 if myEventPausa.is_set():
                     myEventPausa.clear()
-                    info.printinfo("Task despausada")
+                    info.printinfo("Task despausada", False, True)
                 else:
                     myEventPausa.set()
-                    info.printinfo("Task pausada")
+                    info.printinfo("Task pausada", False, True)
             
-            # if key.char == "t":s
+            if key.char == "g":
+                alvo = pgs.encontrar_alvo(f"{const.PATH_PRINT}", semelhanca=0.99, necessario=True, regiao=const.AREA_TELA_WARSPEAR, mover=True)
+                pass
             if key.char == "d":
                 pos = pg.position()
                 pontos.append(Point(x=pos.x, y=pos.y))
