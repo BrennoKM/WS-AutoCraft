@@ -2,23 +2,27 @@
 "nicknames":
 	[
 		"Jikininki", "Scalaxy", "Waxius", "Phormid", "Aqsafada", "Kobernn"
-	], 
+	],
 "tempo_restante":
 	[
 		[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]
-	], 
+	],
 "itens":
 	[
-		"bracelete_1_10", "bracelete_1_10", "bracelete_1_10", "balestra_1_10", "balestra_1_10", "balestra_1_10"
-	], 
+		"colecao_longo_alcance_1", "colecao_longo_alcance_1", "colecao_longo_alcance_1", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance"
+	],
 "slots_disponiveis":
 	[
 		4, 4, 4, 4, 4, 4
-	], 
+	],
 "reinserir_na_fila":
 	[
-		true, true, true, true, true, true
-	], 
+		false, false, false, false, false, false
+	],
+"gastar_coin":
+	[
+		false, false, false, false, false, false
+	],
 "tempo_espera_inicial":
 	[
 		[0, 0, 0]

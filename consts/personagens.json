@@ -1,37 +1,37 @@
 [
     {
         "nickname":"Mogamett",
-        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "anel", "bracelete"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 11
     },
     {
         "nickname":"Jikininki",
-        "crafts": ["bracelete"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     },
     {
         "nickname":"Scalaxy",
-        "crafts": ["bracelete"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     },
     {
         "nickname":"Waxius",
-        "crafts": ["bracelete"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     },
     {
         "nickname":"Phormid",
-        "crafts": ["bracelete", "longo_alcance"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     },
     {
         "nickname":"Aqsafada",
-        "crafts": ["bracelete", "longo_alcance"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     },
     {
         "nickname":"Kobernn",
-        "crafts": ["bracelete", "longo_alcance"],
+        "crafts": ["longo_alcance", "corpo_a_corpo", "armadura_tecido", "armadura_pesada", "armadura_leve", "anel", "bracelete", "capote", "amuleto"],
         "slots": 4
     }
 ]

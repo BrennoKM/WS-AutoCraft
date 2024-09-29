@@ -141,6 +141,7 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         info.printinfo("Bot de craft foi encerrado remotamente.", False, True)
         myEvent.clear()
         # myEventPausa.clear()
+        init.resetar_fila()
         threading.Thread(target=lambda: init.deslogar(myEvent, myEventPausa)).start()
         # init.deslogar(myEvent, myEventPausa)
         time.sleep(2)
@@ -163,7 +164,12 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         info.printinfo("Comando de printtask foi acionado remotamente.")
         dados = es.carregar_json(f'{const.PATH_TASK}')
         formatted_dados = json.dumps(dados, separators=(',', ':'))
-        formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n\t]\n}\n')
+        formatted_dados = formatted_dados.replace('],"', '\n\t],\n"')\
+                                            .replace(':[',':\n\t[\n\t\t')\
+                                            .replace(',', ', ')\
+                                            .replace('{','{\n')\
+                                            .replace(']}','\n\t]\n}\n')\
+                                            .replace(', \n',',\n')
         
 
         send_telegram_message(formatted_dados, info.printinfo)
@@ -182,11 +188,16 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                 "itens": ["nome_item"],
                 "slots_disponiveis": [2],
                 "reinserir_na_fila": [True],
+                "gastar_coin": [False],
                 "tempo_espera_inicial": [[0, 0, 0]]
             }
             formatted_dados = json.dumps(exemplo_json, separators=(',', ':'))
-            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
-            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n\t]\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"')\
+                                                .replace(':[',':\n\t[\n\t\t')\
+                                                .replace(',', ', ')\
+                                                .replace('{','{\n')\
+                                                .replace(']}','\n\t]\n}\n')\
+                                                .replace(', \n',',\n')
             send_telegram_message(
                 f"Formato de JSON inválido.\nUse: /edittask {formatted_dados}",
                 info.printinfo
@@ -199,8 +210,12 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         
         with open(f'{const.PATH_TASK}', 'w') as f:
             formatted_dados = json.dumps(dados, separators=(',', ':'))
-            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
-            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n\t]\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"')\
+                                            .replace(':[',':\n\t[\n\t\t')\
+                                            .replace(',', ', ')\
+                                            .replace('{','{\n')\
+                                            .replace(']}','\n\t]\n}\n')\
+                                            .replace(', \n',',\n')
             f.write(formatted_dados)
         
         send_telegram_message("Tasks foram atualizadas.", info.printinfo)
@@ -219,10 +234,15 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                 "itens": ["nome_item"],
                 "slots_disponiveis": [2],
                 "reinserir_na_fila": [True],
+                "gastar_coin": [False],
             }
             formatted_dados = json.dumps(exemplo_json, separators=(',', ':'))
-            # formatted_dados = formatted_dados.replace('],"', '],\n"').replace('\":', '\":\n').replace('[[','[\n[').replace(']]',']\n]').replace('["','[\n\"').replace('\"]','\"\n]').replace(',', ', ').replace('{','{\n').replace('}','\n}\n')
-            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"').replace(':[',':\n\t[\n\t\t').replace(',', ', ').replace('{','{\n').replace(']}','\n\t]\n}\n')
+            formatted_dados = formatted_dados.replace('],"', '\n\t],\n"')\
+                                            .replace(':[',':\n\t[\n\t\t')\
+                                            .replace(',', ', ')\
+                                            .replace('{','{\n')\
+                                            .replace(']}','\n\t]\n}\n')\
+                                            .replace(', \n',',\n')
             send_telegram_message(
                 f"Formato de JSON inválido.\nUse: /addtask {formatted_dados}",
                 info.printinfo
@@ -238,7 +258,8 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                 item = nova_tarefa['itens'][i]
                 slots_disponiveis = nova_tarefa["slots_disponiveis"][i]
                 reinserir_na_fila = nova_tarefa["reinserir_na_fila"][i]
-                init.add_task(nick, tempo_espera+2, item, slots_disponiveis, reinserir_na_fila, requisisao_bot=True)
+                gastar_coin = nova_tarefa["gastar_coin"][i]
+                init.add_task(nick, tempo_espera+2, item, slots_disponiveis, reinserir_na_fila, gastar_coin, requisisao_bot=True)
         except IndexError as e:
             info.printinfo(f"Falha ao adicionar a nova task. A quantidade de \"nicknames\" e \"itens\" devem ser iguais.\nErro: {e}", True, True)
             return
@@ -274,9 +295,10 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
                                         .replace('}]','\n\t}\n]')\
                                         .replace('},{','\n\t},\n\t{\n\t\t')\
-                                        # .replace(',"',',\n\t\t"')\
+                                        # .replace(',"',',\n"')\
                                         # .replace(',',', ')\
-                                        # .replace(':',': ')
+                                        # .replace(':',': ')\
+                                        # .replace(', \n',',\n')
 
                                         
         
@@ -308,7 +330,8 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                         .replace('},{','\n\t},\n\t{\n\t\t')\
                                         .replace(',\"',',\n\t\t\"')\
                                         .replace(',',', ')\
-                                        .replace(':',': ')
+                                        .replace(':',': ')\
+                                        .replace(', \n',',\n')
             
             send_telegram_message(
                 f"Formato de JSON inválido.\nUse: /editcrafts {formatted_dados}",
@@ -328,9 +351,10 @@ def process_command(text, chat_id, myEvent, myEventPausa):
             formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
                                         .replace('}]','\n\t}\n]')\
                                         .replace('},{','\n\t},\n\t{\n\t\t')\
-                                        .replace(',\"',',\n\"')\
+                                        .replace(',\"',',\n\t\t\"')\
                                         .replace(',',', ')\
-                                        .replace(':',': ')
+                                        .replace(':',': ')\
+                                        .replace(', \n',',\n')
             
             f.write(formatted_dados)
         

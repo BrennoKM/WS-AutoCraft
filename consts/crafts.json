@@ -180,6 +180,16 @@
 		"duracao_dia_hora_minuto": [0, 3, 30]
 	}, 
 	{
+		"item": "licenca_prod_bracelete", 
+		"craft": "bracelete", 
+		"especial": true, 
+		"melhoria": false, 
+		"precisa_desmontar": false, 
+		"posicao": 4, 
+		"licenca": 1, 
+		"duracao_dia_hora_minuto": [0, 3, 30]
+	}, 
+	{
 		"item": "balestra_1_10", 
 		"craft": "longo_alcance", 
 		"especial": false, 
