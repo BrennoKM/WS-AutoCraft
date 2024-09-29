@@ -17,6 +17,10 @@ def capturar_e_salvar_area(x_inicial, y_inicial, largura, altura, caminho_arquiv
     # Salvar a imagem
     screenshot.save(caminho_arquivo)
     print(f"Screenshot salva em: {caminho_arquivo}")
+
+def capturar_print(x_inicial, y_inicial, largura, altura):
+    screenshot = pg.screenshot(region=(x_inicial, y_inicial, largura, altura))
+    return screenshot
     
 def mover_para(alvo=None, var_x=0, var_y=0):
     if(alvo is not None):

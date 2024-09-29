@@ -9,6 +9,10 @@ import init
 import entrada_saida as es
 import constantes as const
 import json
+import threading
+import pg_simplificado as pgs
+import tempfile
+from datetime import datetime
 
 
 TOKEN = ''
@@ -63,6 +67,17 @@ def send_message(chat_id, message, printinfo_callback=print):
             # printinfo_callback(f"Mensagem enviada para chat_id {chat_id}.")
         return response.json()
 
+def send_image(chat_id, image_path, printinfo_callback):
+    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
+    legenda_hora_atual = datetime.now().strftime("%H:%M:%S")
+    with open(image_path, 'rb') as image_file:
+        files = {'photo': image_file}
+        data = {'chat_id': chat_id, 'caption': f"Printscreen tirada às {legenda_hora_atual}"}
+        response = requests.post(url, files=files, data=data)
+        if response.status_code == 200:
+            printinfo_callback("Printscreen enviada com sucesso.")
+        else:
+            printinfo_callback(f"Falha ao enviar printscreen: {response.text}", True, True)
 # verificar_variaveis_ambiente()
 
 # URL TO GET CHAT_ID:
@@ -290,7 +305,6 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         except json.JSONDecodeError:
             send_message(chat_id, "Formato inválido. Use /droptask [id1, id2, ...]", info.printinfo)
 
-
     elif text == "/printcraftname":
         info.printinfo("Comando de printcraftnames foi acionado remotamente.")
         dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
@@ -462,6 +476,15 @@ def process_command(text, chat_id, myEvent, myEventPausa):
 
         send_message(chat_id, "Craft(s) removido(s).", info.printinfo)
         info.printinfo("Craft(s) removido(s).")
+
+    elif text == "/printscreen":
+        info.printinfo("Comando de printscreen foi acionado remotamente.")
+        screenshot = pgs.capturar_print(*const.AREA_TELA_WARSPEAR)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
+            screenshot_path = tmp_file.name
+            screenshot.save(screenshot_path)
+        send_image(chat_id, screenshot_path, info.printinfo)
+        os.remove(screenshot_path)
 
 
 def iniciar_bot(myEvent, myEventPausa):

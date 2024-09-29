@@ -45,8 +45,7 @@ def on_release(key):
             if key == keyboard.Key.esc:
                 info.printinfo("Task encerrada.")
                 myEvent.clear()
-                init.resetar_fila()
-                init.deslogar(myEvent, myEventPausa)
+                threading.Thread(target=lambda: deslogar_com_excecao(myEvent, myEventPausa)).start()
                 time.sleep(2)
                 info.salvar_log()
 
@@ -54,10 +53,10 @@ def on_release(key):
                 info.printinfo("Task iniciada.")
                 if not myEvent.is_set():
                     myEvent.set()
-                # th = threading.Thread(target=init.iniciar, args=(myEvent,))
-                th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
+                
+                th = threading.Thread(target=lambda: iniciar_com_excecao(myEvent, myEventPausa))
                 th.start()
-        
+
             if key.char == "l":
                 if myEventPausa.is_set():
                     myEventPausa.clear()
@@ -86,7 +85,18 @@ def on_release(key):
     except AttributeError:
         pass
 
+def iniciar_com_excecao(myEvent, myEventPausa):
+    try:
+        init.iniciar(myEvent, myEventPausa)
+    except Exception as e:
+        info.printinfo(f"Erro ao iniciar a task: {e}", erro=True, enviar_msg=True)
 
+def deslogar_com_excecao(myEvent, myEventPausa):
+    try:
+        init.resetar_fila()
+        init.deslogar(myEvent, myEventPausa)
+    except Exception as e:
+        info.printinfo(f"Erro ao deslogar a task: {e}", erro=True, enviar_msg=True)
 
 def sleep_with_check(duration):
     interval = 1 #Intervalo de verificação em segundos

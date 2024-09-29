@@ -144,7 +144,7 @@ def iniciar(myEvent, myEventPausa):
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return
-        time.sleep(0.1)
+        time.sleep(1)
         tempo_sleep = prioridade[1] - time.time()
         info.printinfo(f"Tempo de espera para {prioridade[0]}: {tempo_sleep:.2f} segundos.", False, True)
         finalizou, tempo_restante_sleep = sleep_with_check(tempo_sleep, myEvent, myEventPausa)
@@ -153,6 +153,7 @@ def iniciar(myEvent, myEventPausa):
             # fila_prioridade.dequeue()
             fila_prioridade.enqueue(prioridade[0], time.time() + tempo_restante_sleep, prioridade[2], prioridade[3], prioridade[4], prioridade[5])
             continue
+        time.sleep(1)
         if fila_prioridade.is_priority_droped() == True:
             fila_prioridade.reset_priority_droped()
             info.printinfo(f"Prioridade {prioridade[0]} foi dropada da fila.", erro=True, enviar_msg=True)
@@ -181,7 +182,7 @@ def iniciar(myEvent, myEventPausa):
         personagem["reinserir_na_fila"] = prioridade[4]
         personagem['slots'] = personagem['slots'] if prioridade[3] == -1 else prioridade[3]
 
-        info.printinfo(f"Personagem:\t{personagem['nickname']},\n\tCraft: {craft['item']},\n\tSlots: {personagem['slots']},\n\tReinserir na fila: {prioridade[4]},\n\tGastar coin: {craft["gastar_coin"]}", False, True)
+        info.printinfo(f"Personagem:\t{personagem['nickname']},\n\tCraft: {craft['item']},\n\tSlots: {personagem['slots']},\n\tReinserir na fila: {prioridade[4]},\n\tGastar coin: {craft["gastar_coin"]},\n\tID na fila: {prioridade[6]}", False, True)
         ##
         ##
         ##
@@ -200,6 +201,12 @@ def iniciar(myEvent, myEventPausa):
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
         acoes_person.fechar_popup(myEvent, myEventPausa)
 
+        if fila_prioridade.is_priority_droped() == True:
+            fila_prioridade.reset_priority_droped()
+            info.printinfo(f"Prioridade {prioridade[0]} foi dropada da fila.", erro=True, enviar_msg=True)
+            acoes_person.deslogar(myEvent, myEventPausa)
+            continue
+
         # contador_desmontados = desmontar(personagem, craft['item'], (5), myEvent, myEventPausa) ## apenas para testes, não descomentar
 
         verificar_pausa(myEventPausa)
@@ -209,9 +216,24 @@ def iniciar(myEvent, myEventPausa):
         # info.printinfo(f"Indo craftar o item: {craft}")
 
         duracao, contador_coletados, contador_iniciados = craftar(personagem, craft, myEvent, myEventPausa)
+        # info.printinfo(f"Duracao: {duracao}, Coletados: {contador_coletados}, Iniciados: {contador_iniciados}")
+
+        if contador_coletados == -1:
+            info.printinfo(f"Personagem {personagem['nickname']} não conseguiu finalizar a task e será dropado da fila para minimizar percas de coins.", erro=True, enviar_msg=True)
+            acoes_person.deslogar(myEvent, myEventPausa)
+            continue
+
+        if fila_prioridade.is_priority_droped() == True:
+            fila_prioridade.reset_priority_droped()
+            info.printinfo(f"Prioridade {prioridade[0]} foi dropada da fila.", erro=True, enviar_msg=True)
+            acoes_person.deslogar(myEvent, myEventPausa)
+            continue
+
+        if not myEvent.is_set():
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
 
         espera_diminuida = False
-        houve_falha_conexao = False
         nova_duracao = [0, 0, 0]
         slots_totais_disponiveis = personagem['slots']
         qnt_faltantes = personagem['slots'] - contador_iniciados
@@ -247,7 +269,10 @@ def iniciar(myEvent, myEventPausa):
             espera_diminuida = True
             nova_duracao = temp_duracao
 
-
+        if not myEvent.is_set():
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
+        
         if contador_coletados < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
             info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.")
             contador_desmontados = desmontar(personagem, craft['item'], (contador_coletados*-1), myEvent, myEventPausa)
@@ -261,6 +286,10 @@ def iniciar(myEvent, myEventPausa):
                 info.printinfo("Desmontagem concluída, tentando craftar novamente.")
                 temp_duracao, temp_contador_coletados, temp_contador_iniciados = craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=True) ## por causa do comentario acima, eu executo isso fora do if as vezes até descobrir a causa
                 qnt_faltantes = personagem['slots'] - temp_contador_iniciados - contador_iniciados
+                if contador_coletados == -1:
+                    info.printinfo(f"Personagem {personagem['nickname']} não conseguiu finalizar a task e será dropado da fila para minimizar percas de coins.", erro=True, enviar_msg=True)
+                    acoes_person.deslogar(myEvent, myEventPausa)
+                    continue
                 if temp_contador_coletados < 0:
                     segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
                     temp_duracao = tempo.converter_de_segundos(segundos*0.1)
@@ -269,7 +298,10 @@ def iniciar(myEvent, myEventPausa):
                 espera_diminuida = True
                 nova_duracao = temp_duracao
 
-
+        if not myEvent.is_set():
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return
+        
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
             continue
@@ -339,17 +371,18 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
         iniciou_algum = slots_totais_disponiveis - qnt_faltantes > 0
         if iniciou_algum:
             info.printinfo(f"Foram iniciados {slots_totais_disponiveis - qnt_faltantes} slots com sucesso e {qnt_faltantes} slots não foram inciados.", erro=True, enviar_msg=True)
-            if segundos > 0:
-                info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
-            else:
-                info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando em imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+            if craft['gastar_coin'] == False:
+                if segundos > 0:
+                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+                else:
+                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
                 
         else:
             info.printinfo(f"Nenhum slot foi iniciado com sucesso.", erro=True, enviar_msg=True)
             if segundos > 0:
                 info.printinfo(f"Serviço para {personagem['nickname']} não foi finalizado com sucesso.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", True, True)
             else:
-                info.printinfo(f"Serviço para {personagem['nickname']} não foi finalizado.\n\tVoltando em imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+                info.printinfo(f"Serviço para {personagem['nickname']} não foi finalizado.\n\tVoltando imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
               
         fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, prioridade[2], qnt_faltantes, prioridade[4], prioridade[5])
         
@@ -382,6 +415,11 @@ def verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, reinserir_n
             # fila_prioridade.dequeue()
             fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, craft['item'], personagem['slots'], personagem["reinserir_na_fila"], craft['gastar_coin'])
         return True
+    if fila_prioridade.is_priority_droped() == True:
+            fila_prioridade.reset_priority_droped()
+            info.printinfo(f"Prioridade {personagem['nickname']} foi dropada da fila.", erro=True, enviar_msg=True)
+            acoes_person.deslogar(myEvent, myEventPausa)
+            return True
     return False
 
 def craftar(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
