@@ -134,6 +134,10 @@ def iniciar(myEvent, myEventPausa):
                 return
 
         prioridade = fila_prioridade.dequeue()
+        if prioridade is None:
+            info.printinfo("Fila de prioridade vazia.", False, True)
+            time.sleep(5)
+            continue
         print_fila(fila_prioridade)
         # info.printinfo(f"Prioridade da vez: {prioridade[0]}")
         # info.printinfo(f"Prioridade: {prioridade}")

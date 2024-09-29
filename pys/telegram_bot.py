@@ -56,7 +56,7 @@ def send_message(chat_id, message, printinfo_callback=print):
             response.raise_for_status()  # Levanta exceção para códigos de status HTTP de erro
         except requests.exceptions.RequestException as e:
             if printinfo_callback:
-                printinfo_callback(f"Erro na request para chat_id {chat_id}.", True)
+                printinfo_callback(f"Erro na request para chat_id {chat_id}.", True, True)
                 # printinfo_callback(f"Erro na request para chat_id {chat_id}: {e}", True)
             return None
         # if printinfo_callback:
@@ -92,12 +92,12 @@ def get_updates(offset=None):
 def process_updates(updates, myEvent, myEventPausa):
     global bot_start_time
     for update in updates["result"]:
-        update_time = update["message"]["date"]
-        if update_time < bot_start_time:
-            info.printinfo(f"Ignorando comando que foi submetido antes do bot iniciar.", True)
-            continue
         message = update.get("message")
         if message:
+            update_time = update["message"]["date"]
+            if update_time < bot_start_time:
+                info.printinfo(f"Ignorando comando que foi submetido antes do bot iniciar.", True)
+                continue
             text = message.get("text")
             chat_id = message["chat"]["id"]
             if str(chat_id) in AUTHORIZED_CHAT_IDS:  # Verificar se o chat_id está autorizado
@@ -172,7 +172,7 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                             .replace(', \n',',\n')
         
 
-        send_telegram_message(formatted_dados, info.printinfo)
+        send_message(chat_id, formatted_dados, info.printinfo)
 
     elif text.startswith("/edittask"):
 
@@ -198,7 +198,8 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                                 .replace('{','{\n')\
                                                 .replace(']}','\n\t]\n}\n')\
                                                 .replace(', \n',',\n')
-            send_telegram_message(
+            send_message(
+                chat_id,
                 f"Formato de JSON inválido.\nUse: /edittask {formatted_dados}",
                 info.printinfo
             )
@@ -218,7 +219,7 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                             .replace(', \n',',\n')
             f.write(formatted_dados)
         
-        send_telegram_message("Tasks foram atualizadas.", info.printinfo)
+        send_message(chat_id, "Tasks foram atualizadas.", info.printinfo)
         info.printinfo("Tasks foram atualizadas.")
     
     elif text.startswith("/addtask"):
@@ -243,7 +244,8 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                             .replace('{','{\n')\
                                             .replace(']}','\n\t]\n}\n')\
                                             .replace(', \n',',\n')
-            send_telegram_message(
+            send_message(
+                chat_id,
                 f"Formato de JSON inválido.\nUse: /addtask {formatted_dados}",
                 info.printinfo
             )
@@ -261,13 +263,13 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                 gastar_coin = nova_tarefa["gastar_coin"][i]
                 init.add_task(nick, tempo_espera+2, item, slots_disponiveis, reinserir_na_fila, gastar_coin, requisisao_bot=True)
         except IndexError as e:
-            info.printinfo(f"Falha ao adicionar a nova task. A quantidade de \"nicknames\" e \"itens\" devem ser iguais.\nErro: {e}", True, True)
+            info.printinfo(f"Falha ao adicionar a nova task. A quantidade de atributos devem ser iguais.\nErro: {e}", True, True)
             return
         except KeyError as e:
             info.printinfo(f"Falha ao adicionar a nova task. O JSON deve conter os campos: nicknames, tempo_restante, itens, slots_disponiveis e reinserir_na_fila.\nErro: {e}", True, True)
             return
 
-        send_telegram_message("Nova(s) task(s) adicionada(s).", info.printinfo)
+        send_message(chat_id, "Nova(s) task(s) adicionada(s).", info.printinfo)
         info.printinfo("Uma ou mais tasks foram adicionadas via bot do telegram.")
         time.sleep(2)
         init.print_fila()
@@ -288,25 +290,73 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         except json.JSONDecodeError:
             send_message(chat_id, "Formato inválido. Use /droptask [id1, id2, ...]", info.printinfo)
 
-    elif text == "/printcraft":
-        info.printinfo("Comando de printcrafts foi acionado remotamente.")
+
+    elif text == "/printcraftname":
+        info.printinfo("Comando de printcraftnames foi acionado remotamente.")
         dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
-        formatted_dados = json.dumps(dados, separators=(',', ':'))
-        formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
-                                        .replace('}]','\n\t}\n]')\
-                                        .replace('},{','\n\t},\n\t{\n\t\t')\
-                                        # .replace(',"',',\n"')\
-                                        # .replace(',',', ')\
-                                        # .replace(':',': ')\
-                                        # .replace(', \n',',\n')
+
+        # dados = [{"item": entry["item"]} for entry in dados]
+        dados = [entry["item"] for entry in dados]
+
+        formatted_dados = json.dumps(dados, separators=(',', ':'), indent=4)
+        # formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
+        #                                 .replace('}]','\n\t}\n]')\
+        #                                 .replace('},{','\n\t},\n\t{\n\t\t')\
+        #                                 .replace(',\"',',\n\t\t\"')\
+        #                                 .replace(',',', ')\
+        #                                 .replace(':',': ')\
+        #                                 .replace(', \n',',\n')
 
                                         
         
         send_message(chat_id, formatted_dados, info.printinfo)
 
-    elif text.startswith("/editcraft"):
-        info.printinfo("Comando de editcrafts foi acionado remotamente.")
-        json_str = text[len("/editcrafts"):].strip()
+    elif text.startswith("/printcraft"):
+        info.printinfo("Comando de printcrafts foi acionado remotamente.")
+        
+        json_str = text[len("/printcraft"):].strip()
+        
+        try:
+            items_to_filter = json.loads(json_str)
+        except json.JSONDecodeError:
+            exemplo_json = [
+                    "material_bracelete_1_2",
+                    "material_bracelete_1_3"
+                ]
+            
+            formatted_dados = json.dumps(exemplo_json, separators=(',', ':'), indent=4)
+            
+            send_message(
+                chat_id,
+                f"Formato de JSON inválido.\nUse: /printcraft {formatted_dados}",
+                info.printinfo
+            )
+            return
+        
+        dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
+
+        filtered_dados = [entry for entry in dados if entry["item"] in items_to_filter]
+
+        formatted_dados = json.dumps(filtered_dados, separators=(',', ':'))
+        formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
+                                        .replace('}]','\n\t}\n]')\
+                                        .replace('},{','\n\t},\n\t{\n\t\t')\
+                                        .replace(',\"',',\n\t\t\"')\
+                                        .replace(',',', ')\
+                                        .replace(':',': ')\
+                                        .replace(', \n',',\n')
+
+        send_message(chat_id, formatted_dados, info.printinfo)
+
+
+    elif text.startswith("/editcraft") or text.startswith("/addcraft"):
+        if text.startswith("/addcraft"):
+            info.printinfo("Comando de addcraft foi acionado remotamente.")
+            json_str = text[len("/addcraft"):].strip()
+        else:
+            info.printinfo("Comando de editcrafts foi acionado remotamente.")
+            json_str = text[len("/editcraft"):].strip()
+            
         
         try:
             novos_dados = json.loads(json_str)
@@ -333,21 +383,31 @@ def process_command(text, chat_id, myEvent, myEventPausa):
                                         .replace(':',': ')\
                                         .replace(', \n',',\n')
             
-            send_telegram_message(
-                f"Formato de JSON inválido.\nUse: /editcrafts {formatted_dados}",
+            if text.startswith("/addcraft"):
+                msg_saida = f"Formato de JSON inválido.\nUse: /addcraft {formatted_dados}"
+            else:
+                msg_saida = f"Formato de JSON inválido.\nUse: /editcraft {formatted_dados}",
+            send_message(
+                chat_id,
+                msg_saida,
                 info.printinfo
             )
             return
         
-        # dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
+        dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
         
-        # if not isinstance(dados, list):
-        #     dados = []
-
-        # dados.extend(novos_dados)
+        for novo_item in novos_dados:
+            item_encontrado = False
+            for i, item_existente in enumerate(dados):
+                if item_existente["item"] == novo_item["item"]:
+                    dados[i] = novo_item
+                    item_encontrado = True
+                    break
+            if not item_encontrado:
+                dados.append(novo_item)
         
         with open(f'{const.PATH_CONSTS}crafts.json', 'w') as f:
-            formatted_dados = json.dumps(novos_dados, separators=(',', ':'))
+            formatted_dados = json.dumps(dados, separators=(',', ':'))
             formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
                                         .replace('}]','\n\t}\n]')\
                                         .replace('},{','\n\t},\n\t{\n\t\t')\
@@ -358,11 +418,50 @@ def process_command(text, chat_id, myEvent, myEventPausa):
             
             f.write(formatted_dados)
         
-        send_telegram_message("Crafts foram atualizados.", info.printinfo)
-        info.printinfo("Crafts foram atualizados.")
+        if text.startswith("/addcraft"):
+            send_message(chat_id, "Craft(s) adicionado(s).", info.printinfo)
+            info.printinfo("Craft(s) adicionado(s).")
+        else:
+            send_message(chat_id, "Crafts foram atualizados.", info.printinfo)
+            info.printinfo("Crafts foram atualizados.")
+    
+    elif text.startswith("/dropcraft"):
+        info.printinfo("Comando de dropcraft foi acionado remotamente.")
+        json_str = text[len("/dropcraft"):].strip()
+        try:
+            items_to_remove = json.loads(json_str)
+        except json.JSONDecodeError:
+            exemplo_json = [
+                    "material_bracelete_1_2",
+                    "material_bracelete_1_3"
+                ]
+            
+            formatted_dados = json.dumps(exemplo_json, separators=(',', ':'), indent=4)
+            
+            send_message(
+                chat_id,
+                f"Formato de JSON inválido.\nUse: /dropcraft {formatted_dados}",
+                info.printinfo
+            )
+            return
+        
+        dados = es.carregar_json(f'{const.PATH_CONSTS}crafts.json')
+        dados = [item for item in dados if item["item"] not in items_to_remove]
 
+        with open(f'{const.PATH_CONSTS}crafts.json', 'w') as f:
+            formatted_dados = json.dumps(dados, separators=(',', ':'))
+            formatted_dados = formatted_dados.replace('[{','[\n\t{\n\t\t')\
+                                        .replace('}]','\n\t}\n]')\
+                                        .replace('},{','\n\t},\n\t{\n\t\t')\
+                                        .replace(',\"',',\n\t\t\"')\
+                                        .replace(',',', ')\
+                                        .replace(':',': ')\
+                                        .replace(', \n',',\n')
+            
+            f.write(formatted_dados)
 
-
+        send_message(chat_id, "Craft(s) removido(s).", info.printinfo)
+        info.printinfo("Craft(s) removido(s).")
 
 
 def iniciar_bot(myEvent, myEventPausa):

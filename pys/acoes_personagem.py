@@ -542,10 +542,17 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         # while True:
         #     info.printinfo("Vai pressionar f2 e substituir o craft.")
         #     pg.sleep(10)
-        pgs.press("f2")
-        pg.sleep(0.3)
-        pgs.press("f2")
-        return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=True)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
+        pg.sleep(1)
+        if not myEvent.is_set(): return
+        verificar_pausa(myEventPausa)
+        if alvo_recursos is not None and alvo_produzido is not None:
+            info.printinfo("Craft especial encontrado na lista e vai ser puxado para substituição.")
+            pgs.press("f2")
+            pg.sleep(0.3)
+            pgs.press("f2")
+            return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=True)
     return False
 
 

@@ -55,6 +55,7 @@ class Fila_prioridade:
     
     def reset(self):
         self.queue = []
+        self.last_priority = None
 
     def has_novas_tasks(self):
         return self.novas_tasks
@@ -78,6 +79,7 @@ class Fila_prioridade:
             ##return False
             info.printinfo(f"Task de prioridade com id \"{id}\" foi removida da fila: {self.last_priority}.", False, True)
             self.priority_droped = True
+            self.last_priority = None
             return True
         info.printinfo(f"Task com id \"{id}\" não encontrada na fila.", True, True)
         return False
@@ -120,6 +122,8 @@ class Fila_prioridade:
                 else:
                     lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.")
         conteudo_fila = "Fila de prioridade:\n" + "".join(lista)
+        if lista == []:
+            conteudo_fila = "Fila de prioridade vazia."
         if fila_detalhada == True and conteudo_fila.endswith("\n"):
             conteudo_fila = conteudo_fila[:-1]
         info.printinfo(conteudo_fila, False, True)
