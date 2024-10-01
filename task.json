@@ -17,11 +17,11 @@
 	],
 "reinserir_na_fila":
 	[
-		false, false, false, false, false, false
+		true, true, true, true, true, true
 	],
 "gastar_coin":
 	[
-		false, false, false, false, false, false
+		true, true, true, true, true, true
 	],
 "tempo_espera_inicial":
 	[

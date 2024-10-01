@@ -211,7 +211,7 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
         # info.printinfo(f"Indo craftar o item: {craft}")
 
@@ -230,7 +230,7 @@ def iniciar(myEvent, myEventPausa):
             continue
 
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
 
         espera_diminuida = False
@@ -251,7 +251,7 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
         
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
@@ -270,7 +270,7 @@ def iniciar(myEvent, myEventPausa):
             nova_duracao = temp_duracao
 
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
         
         if contador_coletados < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
@@ -299,7 +299,7 @@ def iniciar(myEvent, myEventPausa):
                 nova_duracao = temp_duracao
 
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
         
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
@@ -317,13 +317,8 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-            acoes_person.deslogar(myEvent, myEventPausa)
+            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
-        acoes_person.fechar_popup(myEvent, myEventPausa)
-        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
-            procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
-            continue
-        acoes_person.deslogar(myEvent, myEventPausa)
 
 
         verificar_pausa(myEventPausa)
@@ -333,6 +328,14 @@ def iniciar(myEvent, myEventPausa):
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa)
             if not myEvent.is_set():
                 return
+            
+        acoes_person.fechar_popup(myEvent, myEventPausa)
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
+            procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
+            continue
+        acoes_person.deslogar(myEvent, myEventPausa)
+
+
     info.printinfo("Evento finalizado.")
     acoes_person.deslogar(myEvent, myEventPausa)
 

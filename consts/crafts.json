@@ -200,6 +200,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 30]
 	},
 	{
+		"item": "balestra_1_16",
+		"craft": "longo_alcance",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 32,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 7, 27]
+	},
+	{
 		"item": "maca_melhoria_1_32",
 		"craft": "corpo_a_corpo",
 		"especial": false,

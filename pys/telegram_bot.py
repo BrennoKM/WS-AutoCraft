@@ -23,30 +23,36 @@ bot_start_time = 0
 
 def verificar_variaveis_ambiente(printinfo_callback=print):
     global TOKEN, CHAT_IDS, AUTHORIZED_CHAT_IDS
-    load_dotenv(dotenv_path=const.PATH_ENV)
+    try:
+        load_dotenv(dotenv_path=const.PATH_ENV)
 
-    TOKEN = os.getenv("TELEGRAM_TOKEN")
-    CHAT_IDS = os.getenv("CHAT_IDS")
-    AUTHORIZED_CHAT_IDS = os.getenv("AUTHORIZED_CHAT_IDS").split(",")
-    if not TOKEN:
+        TOKEN = os.getenv("TELEGRAM_TOKEN")
+        CHAT_IDS = os.getenv("CHAT_IDS")
+        AUTHORIZED_CHAT_IDS = os.getenv("AUTHORIZED_CHAT_IDS").split(",")
+        if not TOKEN:
+            if printinfo_callback:
+                printinfo_callback("Aviso: TELEGRAM_TOKEN não está definido no arquivo .env", erro=True)
+
+        if CHAT_IDS:
+            CHAT_IDS = CHAT_IDS.split(",")
+        else:
+            if printinfo_callback:
+                printinfo_callback("Aviso: CHAT_IDS não está definido no arquivo .env", erro=True)
+
+        if not AUTHORIZED_CHAT_IDS:
+            printinfo_callback("Aviso: AUTHORIZED_CHAT_IDS não está definido no arquivo .env", erro=True)
+    except Exception as e:
         if printinfo_callback:
-            printinfo_callback("Aviso: TELEGRAM_TOKEN não está definido no arquivo .env", erro=True)
+            printinfo_callback(f"Erro ao verificar variáveis de ambiente no arquivo 'telegram.env'.", erro=True)
 
-    if CHAT_IDS:
-        CHAT_IDS = CHAT_IDS.split(",")
-    else:
-        if printinfo_callback:
-            printinfo_callback("Aviso: CHAT_IDS não está definido no arquivo .env", erro=True)
 
-    if not AUTHORIZED_CHAT_IDS:
-        printinfo_callback("Aviso: AUTHORIZED_CHAT_IDS não está definido no arquivo .env", erro=True)
 session = requests.Session()
 
 def send_telegram_message(message, printinfo_callback=print):
     global TOKEN, CHAT_IDS
     if not TOKEN or not CHAT_IDS:
-        if printinfo_callback:
-            printinfo_callback("Aviso: Não é possível enviar mensagem, TOKEN ou CHAT_IDS não definidos.", erro=True)
+        # if printinfo_callback:
+        #     printinfo_callback("Aviso: Não é possível enviar mensagem, TOKEN ou CHAT_IDS não definidos.", erro=True)
         return
     # Inicia uma thread para cada chat_id
     for chat_id in CHAT_IDS:
@@ -128,6 +134,9 @@ def process_updates(updates, myEvent, myEventPausa):
 def listen_for_commands(myEvent, myEventPausa):
     global bot_start_time
     offset = None
+    if not TOKEN or not CHAT_IDS:
+        info.printinfo("Aviso: Não foi possível iniciar o bot do telegram, TOKEN ou CHAT_IDS não definidos.", erro=True)
+        return
     info.printinfo("Bot telegram iniciado.", False, True)
     bot_start_time = int(time.time())
     # info.printinfo(f"Bot iniciado em: {bot_start_time}")
@@ -488,7 +497,7 @@ def process_command(text, chat_id, myEvent, myEventPausa):
 
 
 def iniciar_bot(myEvent, myEventPausa):
-    verificar_variaveis_ambiente(print)
+    verificar_variaveis_ambiente(info.printinfo)
     threading.Thread(target=listen_for_commands, args=(myEvent, myEventPausa,)).start()
 
 # Exemplo de uso
