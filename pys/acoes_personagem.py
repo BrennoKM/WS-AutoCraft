@@ -564,7 +564,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
         if alvo_recursos is not None and alvo_produzido is not None:
-            info.printinfo("Craft especial encontrado na lista e vai ser puxado para substituição.")
+            info.printinfo("Craft especial encontrado na lista e vai ser puxado para substituição.", False, True)
             pgs.press("f2")
             pg.sleep(0.3)
             pgs.press("f2")
@@ -695,27 +695,37 @@ def fechar_menu_bolsa(myEvent, myEventPausa):
 
 ## 9. deslogar
 def deslogar(myEvent, myEventPausa):
-    fechar_menu_craft(myEvent, myEventPausa)
-    fechar_menu_bolsa(myEvent, myEventPausa)
-    verificar_alerta(myEvent, myEventPausa)
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f1')
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f1')
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f1')
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f1')
+    if not verificar_tela_login(myEvent, myEventPausa):
+        fechar_menu_craft(myEvent, myEventPausa)
+        fechar_menu_bolsa(myEvent, myEventPausa)
+        verificar_alerta(myEvent, myEventPausa)
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f1')
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f1')
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f1')
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f1')
     verificar_pausa(myEventPausa)
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f2')
-    pg.sleep(0.3)
-    pg.press('9')
-    pg.sleep(0.2)
-    pg.press('6')
-    pg.sleep(0.2)
-    if verificar_tela_login(myEvent, myEventPausa): return
-    pg.press('f2')
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f2')
+        pg.sleep(0.3)
+        pg.press('9')
+        pg.sleep(0.2)
+        pg.press('6')
+        pg.sleep(0.2)
+    if not verificar_tela_login(myEvent, myEventPausa):
+        pg.press('f2')
+
+    if verificar_tela_login(myEvent, myEventPausa):
+        info.printinfo("Deslogou com sucesso.", False, True)
+        return True
+    else:
+        info.printinfo("Não conseguiu deslogar. Tentando novamente", erro=True, enviar_msg=True)
+        pg.sleep(0.2)
+        return deslogar(myEvent, myEventPausa)
+         
 
 ## 9.1 verificando alerta
 def verificar_alerta(myEvent, myEventPausa):

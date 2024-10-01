@@ -98,6 +98,12 @@ def deslogar_com_excecao(myEvent, myEventPausa):
     except Exception as e:
         info.printinfo(f"Erro ao deslogar a task: {e}", erro=True, enviar_msg=True)
 
+def iniciar_telegram_bot(myEvent, myEventPausa):
+    try:
+        tb.iniciar_bot(myEvent, myEventPausa)
+    except Exception as e:
+        info.printinfo(f"Erro ao iniciar o bot do telegram: {e}", erro=True, enviar_msg=True)
+
 def sleep_with_check(duration):
     interval = 1 #Intervalo de verificação em segundos
     for _ in range(int(duration / interval)):
@@ -123,10 +129,8 @@ global myEventPausa
 myEventPausa = threading.Event()
 myEventPausa.clear()
 
-tb.iniciar_bot(myEvent, myEventPausa)
-# th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
-# th.start()
-# myEvent.set()
+th_tb = threading.Thread(target=lambda: iniciar_telegram_bot(myEvent, myEventPausa))
+th_tb.start()
 
 th_log = threading.Thread(target=salvar_log_loop)
 th_log.start()

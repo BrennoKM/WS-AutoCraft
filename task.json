@@ -21,7 +21,7 @@
 	],
 "gastar_coin":
 	[
-		false, false, false, false, false, false
+		true, true, true, true, true, true
 	],
 "tempo_espera_inicial":
 	[
