@@ -140,7 +140,7 @@ def verificar_erro_conexao(myEvent, myEventPausa):
     alvo_reconectando = pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
     alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
 
-    if alvo_erro  is not None or alvo_reconectando is not None:
+    if alvo_erro is not None or alvo_reconectando is not None:
         info.printinfo("Houve uma falha de conexão.", erro=True, enviar_msg=True)
         # pg.sleep(1)
         pg.press('enter')
@@ -151,6 +151,17 @@ def verificar_erro_conexao(myEvent, myEventPausa):
         return True
     if verificar_tela_login(myEvent, myEventPausa): return True
     return False
+
+## 2.1.1 verificando reconexao
+def verificar_reconectando(myEvent, myEventPausa):
+    pg.sleep(2)
+    caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
+    while(pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP) is not None):
+        info.printinfo("Esperando a conexão ser concluída.")
+        if not myEvent.is_set():
+            return
+        verificar_pausa(myEventPausa)
+        pg.sleep(0.2)
 
 ## 2.2 Verificar se está na tela de login
 def verificar_tela_login(myEvent, myEventPausa):
@@ -330,6 +341,14 @@ def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
 
 ## 4.2 iniciar craft (passo intermédiario)
 def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
+    pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
+    pg.sleep(0.2)
+    pgs.clicar(1)
+    pg.sleep(0.2)
+    pg.press("down")
+    pg.sleep(0.2)
+    pg.press("up")
+    pg.sleep(0.2)
     caminho_craft_alvo = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_{craft['craft']}.png'
     caminho_craft_iniciar_alvo = f'{const.PATH_IMGS_ANCORAS_CRAFT}ancora_craft_iniciar.png'
     caminho_popup_faltou_recurso = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_faltou_recurso.png'
@@ -348,7 +367,7 @@ def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
             info.printinfo("Encontrou a categoria do craft.")
             pgs.mover_para(alvo_craft)
             pgs.clicar(1)
-            pg.sleep(1.5)
+            pg.sleep(4.5)
             alvo_iniciar = pgs.encontrar_alvo(caminho_craft_iniciar_alvo, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_CRAFT_INICIAR)
             pg.sleep(1.5)
             if alvo_iniciar is None:
@@ -510,8 +529,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
         pg.sleep(1)
         # alvo_requisitos = pgs.encontrar_alvo(caminho_requisistos, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
@@ -541,6 +560,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         pg.sleep(0.3)
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
+        verificar_reconectando(myEvent, myEventPausa)
         pgs.press("down")
         pg.sleep(0.3)
         pgs.press("down")
@@ -558,8 +578,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         # while True:
         #     info.printinfo("Vai pressionar f2 e substituir o craft.")
         #     pg.sleep(10)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
@@ -569,6 +589,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
             pg.sleep(0.3)
             pgs.press("f2")
             gastou_coins = True
+            pg.sleep(2)
             return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=True)
     return False
 

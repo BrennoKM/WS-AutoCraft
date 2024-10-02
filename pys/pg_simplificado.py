@@ -38,6 +38,9 @@ def clicar(qnt):
     pg.sleep(0.1)
     pg.click(clicks=qnt, interval=0.12 + random.uniform(-0.01, 0.02))
 
+def sleep(tempo):
+    pg.sleep(tempo)
+
 def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, necessario: bool = True, mover: bool = False, myEvent=None):
     if os.path.exists(path):
         try:
