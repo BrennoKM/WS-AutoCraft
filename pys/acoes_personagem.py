@@ -24,9 +24,9 @@ def logar(personagem, myEvent, myEventPausa):
     pgs.mover_para(const.POS_BOTAO_JOGAR_LOGIN)
     pgs.clicar(1)
     caminho_popup_erro = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_erro_falha_conexao.png"
-    while(pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_avancar_login.png', semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA) is None):
+    while(pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_avancar_login.png', semelhanca=0.8, necessario=True, regiao=const.AREA_BOLSA) is None):
         info.printinfo(f"Aguardando a tela de notícias ser carregada para o personagem {personagem['nickname']}.")
-        alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA)
+        alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_BOLSA)
         if alvo_erro  is not None:
             info.printinfo("Houve uma falha de conexão durante o login. Tentando se conectar novamente em breve.", erro=True)
             pg.sleep(1)
@@ -48,7 +48,7 @@ def logar(personagem, myEvent, myEventPausa):
     pgs.clicar(1)
 
     caminho = f'{const.PATH_IMGS_ANCORAS_PERSON}ancora_nickname_{personagem["nickname"].lower()}.png'
-    alvo = pgs.encontrar_alvo(caminho, semelhanca=0.8, necessario=False, regiao=const.AREA_NICKNAME)
+    alvo = pgs.encontrar_alvo(caminho, semelhanca=0.8, necessario=True, regiao=const.AREA_NICKNAME)
     if alvo is None:
         pg.sleep(1)
         pg.press("right")
@@ -63,6 +63,7 @@ def logar(personagem, myEvent, myEventPausa):
                     pg.sleep(0.2)
                     pg.press("left")
                 else:
+                    info.printinfo(f"Personagem {personagem['nickname']} encontrado.")
                     break
                 
             for _ in range(13):
@@ -74,6 +75,7 @@ def logar(personagem, myEvent, myEventPausa):
                     pg.sleep(0.2)
                     pg.press("right")
                 else:
+                    info.printinfo(f"Personagem {personagem['nickname']} encontrado.")
                     break
     if not myEvent.is_set():
             return
@@ -82,7 +84,7 @@ def logar(personagem, myEvent, myEventPausa):
     pgs.clicar(1)
     pg.sleep(0.3)
     caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
-    while pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA) is not None:
+    while pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_BOLSA) is not None:
         info.printinfo("Esperando a conexão ser concluída.")
         if not myEvent.is_set():
             return
@@ -104,8 +106,8 @@ def fechar_popup(myEvent, myEventPausa):
     if verificar_erro_conexao(myEvent, myEventPausa): return
     caminho_popup_nao = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_nao.png'
     caminho_popup_sim = f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_login_presente_sim.png'
-    alvo_nao = pgs.encontrar_alvo(caminho_popup_nao, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
-    alvo_sim = pgs.encontrar_alvo(caminho_popup_sim, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    alvo_nao = pgs.encontrar_alvo(caminho_popup_nao, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP)
+    alvo_sim = pgs.encontrar_alvo(caminho_popup_sim, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP)
     if alvo_nao is not None and alvo_sim is not None:
         info.printinfo("Popup de login diário infelizmente apareceu.", erro=True)
         pg.sleep(4)
@@ -137,8 +139,8 @@ def verificar_erro_conexao(myEvent, myEventPausa):
     caminho_popup_erro = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_erro_falha_conexao.png"
     caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
     
-    alvo_reconectando = pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
-    alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    alvo_reconectando = pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP)
+    alvo_erro = pgs.encontrar_alvo(caminho_popup_erro, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP)
 
     if alvo_erro is not None or alvo_reconectando is not None:
         info.printinfo("Houve uma falha de conexão.", erro=True, enviar_msg=True)
@@ -156,7 +158,7 @@ def verificar_erro_conexao(myEvent, myEventPausa):
 def verificar_reconectando(myEvent, myEventPausa):
     pg.sleep(2)
     caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
-    while(pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP) is not None):
+    while(pgs.encontrar_alvo(caminho_popup_reconectando, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP) is not None):
         info.printinfo("Esperando a conexão ser concluída.")
         if not myEvent.is_set():
             return
@@ -398,7 +400,7 @@ def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
             if (craft['melhoria'] == False):
                 pg.press("f2")
                 pg.sleep(0.1)
-            alvo_popup_faltou_recurso = pgs.encontrar_alvo(caminho_popup_faltou_recurso, semelhanca=0.8, necessario=False, regiao=const.AREA_BOLSA)
+            alvo_popup_faltou_recurso = pgs.encontrar_alvo(caminho_popup_faltou_recurso, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_BOLSA)
             if alvo_popup_faltou_recurso is not None:
                 if verificar_erro_conexao(myEvent, myEventPausa): return False
                 info.printinfo("Faltou recurso para iniciar o craft.", erro=True)
@@ -518,7 +520,6 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
     pg.sleep(2)
     slots_especiais = craft_categorias[craft['craft']]["slots_especiais"]
     # info.printinfo(f"Range: {slots_especiais}")
-    # caminho_requisistos = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_requisitos.png'
     caminho_recursos = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_recursos.png'
     caminho_produzido = f'{const.PATH_IMGS_ANCORAS_CRAFTS_ESPECIAIS}ancora_{craft['item']}_produzido.png'
     for i in range(slots_especiais):
@@ -528,9 +529,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         pgs.press("enter")
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
         pg.sleep(1)
-        # alvo_requisitos = pgs.encontrar_alvo(caminho_requisistos, semelhanca=0.95, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
@@ -578,8 +578,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         # while True:
         #     info.printinfo("Vai pressionar f2 e substituir o craft.")
         #     pg.sleep(10)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
-        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
+        alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
         verificar_pausa(myEventPausa)
@@ -591,6 +591,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
             gastou_coins = True
             pg.sleep(2)
             return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=True)
+        info.printinfo("Craft especial não foi encontrado para puxar e gastar coins.", erro=True, enviar_msg=True)
     return False
 
 
@@ -739,7 +740,7 @@ def deslogar(myEvent, myEventPausa):
     if not verificar_tela_login(myEvent, myEventPausa):
         pg.press('f2')
 
-    pg.sleep(3)
+    pg.sleep(2)
     if verificar_tela_login(myEvent, myEventPausa):
         info.printinfo("Deslogou com sucesso.", False, True)
         return True
@@ -752,7 +753,7 @@ def deslogar(myEvent, myEventPausa):
 ## 9.1 verificando alerta
 def verificar_alerta(myEvent, myEventPausa):
     caminho_alerta = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_alerta.png"
-    alvo_alerta = pgs.encontrar_alvo(caminho_alerta, semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
+    alvo_alerta = pgs.encontrar_alvo(caminho_alerta, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_POPUP)
     if alvo_alerta is not None:
         info.printinfo("Popup de alerta foi encontrado.", True, True)
         pg.sleep(0.2)

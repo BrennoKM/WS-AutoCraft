@@ -41,7 +41,7 @@ def clicar(qnt):
 def sleep(tempo):
     pg.sleep(tempo)
 
-def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, necessario: bool = True, mover: bool = False, myEvent=None):
+def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, necessario: bool = True, alvo_problema: bool = False, mover: bool = False, myEvent=None):
     if os.path.exists(path):
         try:
             slot = pg.locateOnScreen(path, confidence=semelhanca, region=regiao)
@@ -56,8 +56,10 @@ def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, neces
                 slot = pg.center(slot)
             if(mover == True):
                 mover_para(slot)
-            # if necessario is True:  ## coloquei essa condição pro log não ficar tão poluído	
-            info.printinfo(f'Alvo encontrado: {path}')
+            if necessario is True:  ## coloquei essa condição pro log não ficar tão poluído	
+                info.printinfo(f'Alvo encontrado: {path}')
+            if alvo_problema is True:
+                info.printinfo(f'Alvo de problema encontrado: {path}', erro=True)
             return slot
         if necessario is True:
             info.printinfo(f'Alvo não encontrado: {path}', erro=True)
@@ -66,7 +68,7 @@ def encontrar_alvo(path, semelhanca=0.8, regiao=None, center: bool = True, neces
     info.printinfo(f'Arquivo não encontrado: {path}', erro=True)
     return None
 
-def encontrar_alvos(path, semelhanca=0.8, regiao = None, center: bool = True, necessario: bool = True, myEvent=None):
+def encontrar_alvos(path, semelhanca=0.8, regiao = None, center: bool = True, necessario: bool = True, alvo_problema: bool = False, myEvent=None):
     if myEvent is not None and not myEvent.is_set():
         return
     if os.path.exists(path):
@@ -83,6 +85,10 @@ def encontrar_alvos(path, semelhanca=0.8, regiao = None, center: bool = True, ne
                 for slot in slots:
                     slot = pg.center(slot)
                     retorno.append(slot)
+            if necessario is True:
+                info.printinfo(f'Alvo encontrado: {path}')
+            if alvo_problema is True:
+                info.printinfo(f'Alvo encontrado: {path}', erro=True)
                     
             return retorno
         if necessario is True:

@@ -313,7 +313,6 @@ def iniciar(myEvent, myEventPausa):
 
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
-            ##acoes_person.deslogar(myEvent, myEventPausa)
             return
 
         verificar_pausa(myEventPausa)
@@ -333,7 +332,6 @@ def iniciar(myEvent, myEventPausa):
 
 
     info.printinfo("Evento finalizado.")
-    acoes_person.deslogar(myEvent, myEventPausa)
 
 def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=False):
     global fila_prioridade
@@ -396,7 +394,6 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
 def verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, reinserir_na_fila=False):
     global fila_prioridade
     if not myEvent.is_set():
-        acoes_person.deslogar(myEvent, myEventPausa)
         return True
     verificar_pausa(myEventPausa)
     houve_falha_conexao = acoes_person.verificar_erro_conexao(myEvent, myEventPausa)
@@ -446,6 +443,9 @@ def desmontar(personagem, craft, contador, myEvent, myEventPausa):
     # if contador_desmontados is None:
     #     contador_desmontados = 0
     return contador_desmontados
+
+def verificar_tela_login(myEvent, myEventPausa):
+    return acoes_person.verificar_tela_login(myEvent, myEventPausa)
 
 
 def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):

@@ -158,6 +158,9 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         info.printinfo("Bot de craft foi iniciado remotamente.", False, True)
         if not myEvent.is_set():
             myEvent.set()
+        th_login = threading.Thread(target=lambda: verificar_tela_login_com_excecao(myEvent, myEventPausa))
+        th_login.start()
+        th_login.join()
         th = threading.Thread(target=lambda: init.iniciar(myEvent, myEventPausa))
         th.start()
     elif text == "/stoptask":
@@ -495,7 +498,14 @@ def process_command(text, chat_id, myEvent, myEventPausa):
         send_image(chat_id, screenshot_path, info.printinfo)
         os.remove(screenshot_path)
 
-
+def verificar_tela_login_com_excecao(myEvent, myEventPausa):
+    try:
+        if (init.verificar_tela_login(myEvent, myEventPausa) == False):
+            info.printinfo("Não estava na tela de login, deslogando agora.")
+            init.deslogar(myEvent, myEventPausa)
+    except Exception as e:
+        info.printinfo(f"Erro ao verificar tela de login: {e}", erro=True, enviar_msg=True)
+        
 def iniciar_bot(myEvent, myEventPausa):
     verificar_variaveis_ambiente(info.printinfo)
     threading.Thread(target=listen_for_commands, args=(myEvent, myEventPausa,)).start()

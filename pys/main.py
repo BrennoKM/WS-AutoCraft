@@ -50,6 +50,9 @@ def on_release(key):
                 info.salvar_log()
 
             if key.char == "k":
+                th_login = threading.Thread(target=lambda: verificar_tela_login_com_excecao(myEvent, myEventPausa))
+                th_login.start()
+                th_login.join()
                 info.printinfo("Task iniciada.")
                 if not myEvent.is_set():
                     myEvent.set()
@@ -66,7 +69,7 @@ def on_release(key):
                     info.printinfo("Task pausada", False, True)
             
             if key.char == "g":
-                alvo = pgs.encontrar_alvo(f"{const.PATH_PRINT}", semelhanca=0.99, necessario=True, regiao=const.AREA_TELA_WARSPEAR, mover=True)
+                alvo = pgs.encontrar_alvo(f"{const.PATH_PRINT}", semelhanca=0.90, necessario=True, regiao=const.AREA_TELA_WARSPEAR, mover=True)
                 pass
             if key.char == "d":
                 pos = pg.position()
@@ -79,11 +82,22 @@ def on_release(key):
                     ponto2 = pontos[-1]
                     (x_inicial, y_inicial), largura, altura = calcular_posicao_e_dimensoes(ponto1, ponto2)
                     print(f"Area na tela: ({x_inicial}, {y_inicial}, {largura}, {altura})")
-                    pgs.capturar_e_salvar_area(x_inicial, y_inicial, largura, altura, "print_gerado_da_area.png")
+                    try:
+                        pgs.capturar_e_salvar_area(x_inicial, y_inicial, largura, altura, "print_gerado_da_area.png")
+                    except Exception as e:
+                        print(f"Erro ao capturar e salvar a área: {e}")
                 else:
                     print("Não há pontos suficientes para calcular a área.")
     except AttributeError:
         pass
+
+def verificar_tela_login_com_excecao(myEvent, myEventPausa):
+    try:
+        if (init.verificar_tela_login(myEvent, myEventPausa) == False):
+            info.printinfo("Não estava na tela de login, deslogando agora.")
+            init.deslogar(myEvent, myEventPausa)
+    except Exception as e:
+        info.printinfo(f"Erro ao verificar tela de login: {e}", erro=True, enviar_msg=True)
 
 def iniciar_com_excecao(myEvent, myEventPausa):
     try:
