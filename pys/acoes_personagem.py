@@ -375,9 +375,9 @@ def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
             info.printinfo("Encontrou a categoria do craft.")
             pgs.mover_para(alvo_craft)
             pgs.clicar(1)
-            pg.sleep(4.5)
+            pg.sleep(2)
             alvo_iniciar = pgs.encontrar_alvo(caminho_craft_iniciar_alvo, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_CRAFT_INICIAR)
-            pg.sleep(1.5)
+            pg.sleep(1)
             if alvo_iniciar is None:
                 # if verificar_erro_conexao(myEvent, myEventPausa): return False
                 info.printinfo("Não entrou na categoria, clicando mais uma vez.")
