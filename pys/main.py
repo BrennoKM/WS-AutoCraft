@@ -50,15 +50,12 @@ def on_release(key):
                 info.salvar_log()
 
             if key.char == "k":
-                th_login = threading.Thread(target=lambda: verificar_tela_login_com_excecao(myEvent, myEventPausa))
-                th_login.start()
-                th_login.join()
-                info.printinfo("Task iniciada.")
                 if not myEvent.is_set():
                     myEvent.set()
-                
-                th = threading.Thread(target=lambda: iniciar_com_excecao(myEvent, myEventPausa))
-                th.start()
+                ## essa thread vai garantir que o jogo esteja na tela de login e só apos isso vai iniciar o bot
+                th_login = threading.Thread(target=lambda: verificar_tela_login_com_excecao(myEvent, myEventPausa))
+                th_login.start()
+                info.printinfo("Task iniciada.")
 
             if key.char == "l":
                 if myEventPausa.is_set():
@@ -69,7 +66,7 @@ def on_release(key):
                     info.printinfo("Task pausada", False, True)
             
             if key.char == "g":
-                alvo = pgs.encontrar_alvo(f"{const.PATH_PRINT}", semelhanca=0.90, necessario=True, regiao=const.AREA_TELA_WARSPEAR, mover=True)
+                alvo = pgs.encontrar_alvo(f"{const.PATH_PRINT}", semelhanca=0.98, necessario=True, regiao=const.AREA_TELA_WARSPEAR, mover=True)
                 pass
             if key.char == "d":
                 pos = pg.position()
@@ -96,6 +93,8 @@ def verificar_tela_login_com_excecao(myEvent, myEventPausa):
         if (init.verificar_tela_login(myEvent, myEventPausa) == False):
             info.printinfo("Não estava na tela de login, deslogando agora.")
             init.deslogar(myEvent, myEventPausa)
+        th = threading.Thread(target=lambda: iniciar_com_excecao(myEvent, myEventPausa))
+        th.start()
     except Exception as e:
         info.printinfo(f"Erro ao verificar tela de login: {e}", erro=True, enviar_msg=True)
 

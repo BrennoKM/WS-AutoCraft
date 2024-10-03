@@ -197,7 +197,10 @@ def iniciar(myEvent, myEventPausa):
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
                 return
-        acoes_person.logar(personagem, myEvent, myEventPausa)
+        logou = acoes_person.logar(personagem, myEvent, myEventPausa)
+        if not logou:
+            info.printinfo(f"Personagem {personagem['nickname']} não foi encontrado na lista de personagens.", erro=True, enviar_msg=True)
+            continue
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, True): continue
         acoes_person.fechar_popup(myEvent, myEventPausa)
 
@@ -237,7 +240,6 @@ def iniciar(myEvent, myEventPausa):
         slots_totais_disponiveis = personagem['slots']
         qnt_faltantes = personagem['slots'] - contador_iniciados
         info.printinfo(f"Slots totais disponíveis: {slots_totais_disponiveis}, Slots iniciados: {contador_iniciados}, Slots faltantes: {qnt_faltantes}", False, True)
-        
 
         if duracao != craft['duracao_dia_hora_minuto']:
             info.printinfo("Ajustando para esperar menos tempo.")
@@ -322,7 +324,6 @@ def iniciar(myEvent, myEventPausa):
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
             continue
-        
 
         if myEvent.is_set():
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa)
@@ -366,13 +367,25 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
 
     else:
         iniciou_algum = slots_totais_disponiveis - qnt_faltantes > 0
+        deve_reinserir_faltantes = True
+        
+        if iniciou_algum and craft['gastar_coin'] == True:
+            if segundos > 0: ## se for negativo indica que houve uma falha de conexão e deve ser reinserido na fila
+                info.printinfo(f"Slots faltantes do personagem {personagem['nickname']} não serão reinseridas na fila pois não finalizou a task e provavelmente gastou coins.", erro=True, enviar_msg=True)
+                deve_reinserir_faltantes = False
+
+        if deve_reinserir_faltantes:
+            info.printinfo("Slots faltantes serão reinseridos na fila.", enviar_msg=True)
+            fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, prioridade[2], qnt_faltantes, prioridade[4], prioridade[5])
+        
+        
         if iniciou_algum:
             info.printinfo(f"Foram iniciados {slots_totais_disponiveis - qnt_faltantes} slots com sucesso e {qnt_faltantes} slots não foram inciados.", erro=True, enviar_msg=True)
-            if craft['gastar_coin'] == False:
+            if deve_reinserir_faltantes:
                 if segundos > 0:
-                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado (slots faltantes: {qnt_faltantes}).\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
                 else:
-                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado.\n\tVoltando imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
+                    info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado (slots faltantes: {qnt_faltantes}).\n\tVoltando imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
                 
         else:
             info.printinfo(f"Nenhum slot foi iniciado com sucesso.", erro=True, enviar_msg=True)
@@ -380,13 +393,15 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
                 info.printinfo(f"Serviço para {personagem['nickname']} não foi finalizado com sucesso.\n\tVoltando em: {tempo_temp[0]} dias, {tempo_temp[1]} horas e {tempo_temp[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", True, True)
             else:
                 info.printinfo(f"Serviço para {personagem['nickname']} não foi finalizado.\n\tVoltando imediatamente.\n\tTempo em segundos: {segundos:.2f}.", False, True)
-              
-        fila_prioridade.enqueue(personagem['nickname'], time.time() + segundos, prioridade[2], qnt_faltantes, prioridade[4], prioridade[5])
         
+
         if iniciou_algum and prioridade[4] == True:
-            info.printinfo(f"A fila foi bifurcada para o personagem {personagem['nickname']}.", erro=False, enviar_msg=True)
-            temp_segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
+            if deve_reinserir_faltantes:
+                info.printinfo(f"A fila foi bifurcada para o personagem {personagem['nickname']}.", erro=False, enviar_msg=True)
+            temp_tupla = craft['duracao_dia_hora_minuto']
+            temp_segundos = tempo.converter_para_segundos(temp_tupla)
             fila_prioridade.enqueue(personagem['nickname'], time.time() + temp_segundos, craft['item'], slots_totais_disponiveis - qnt_faltantes, prioridade[4], prioridade[5])
+            info.printinfo(f"Serviço para {personagem['nickname']} parcialmente finalizado (slots iniciados: {slots_totais_disponiveis - qnt_faltantes}).\n\tVoltando em: {temp_tupla[0]} dias, {temp_tupla[1]} horas e {temp_tupla[2]} minutos.\n\tTempo em segundos: {temp_segundos:.2f}.", False, True)
 
     time.sleep(3)
     verificar_pausa(myEventPausa)
@@ -454,7 +469,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
         return True, 0
 
     temp_tempo = tempo.converter_de_segundos(segundos)
-    info.printinfo(f"Aguardando por {temp_tempo[0]} dias, {temp_tempo[1]} horas e {temp_tempo[2]} minutos.", False, True)
+    info.printinfo(f"Aguardando por {temp_tempo[0]} dias, {temp_tempo[1]} horas e {temp_tempo[2]} minutos.\n\tTempo em segundos: {segundos:.2f}.", False, True)
     intervalo = 1  # Intervalo de verificação em segundos
     intervalo_mensagem = 300  # Intervalo para imprimir a mensagem em segundos
     contador_mensagem = 0
@@ -484,7 +499,7 @@ def sleep_with_check(segundos, myEvent, myEventPausa, imprimir_fila=True):
             tempo_restante = tempo.converter_de_segundos(segundos - int(tempo_decorrido))
             if imprimir_fila:
                 print_fila(fila_prioridade)
-            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.", False, True)
+            info.printinfo(f"Tempo restante: {tempo_restante[0]} dias, {tempo_restante[1]} horas e {tempo_restante[2]} minutos.\n\tTempo em segundos: {(segundos - int(tempo_decorrido)):.2f}.", False, True)
 
         # Verificar pausa
         if myEventPausa.is_set():

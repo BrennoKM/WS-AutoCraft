@@ -7,7 +7,7 @@ import time
 import tempo
 
 craft_categorias = []
-gastou_coins = False
+gastou_coin = False
 
 def carregar_craft_categorias():
     global craft_categorias
@@ -63,7 +63,6 @@ def logar(personagem, myEvent, myEventPausa):
                     pg.sleep(0.2)
                     pg.press("left")
                 else:
-                    info.printinfo(f"Personagem {personagem['nickname']} encontrado.")
                     break
                 
             for _ in range(13):
@@ -75,8 +74,10 @@ def logar(personagem, myEvent, myEventPausa):
                     pg.sleep(0.2)
                     pg.press("right")
                 else:
-                    info.printinfo(f"Personagem {personagem['nickname']} encontrado.")
                     break
+        if alvo is None:
+            return False
+    info.printinfo(f"Personagem {personagem['nickname']} encontrado.")
     if not myEvent.is_set():
             return
     verificar_pausa(myEventPausa)
@@ -132,9 +133,6 @@ def verificar_erro_conexao(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
-    if (verificar_alerta(myEvent, myEventPausa)):
-        info.printinfo("Houve uma falha.", erro=True, enviar_msg=True)
-        return True
     pg.sleep(0.7)
     caminho_popup_erro = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_erro_falha_conexao.png"
     caminho_popup_reconectando = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_reconectando.png"
@@ -152,6 +150,9 @@ def verificar_erro_conexao(myEvent, myEventPausa):
         # pgs.clicar(1)
         return True
     if verificar_tela_login(myEvent, myEventPausa): return True
+    if (verificar_alerta(myEvent, myEventPausa)):
+        info.printinfo("Houve uma falha.", erro=True, enviar_msg=True)
+        return True
     return False
 
 ## 2.1.1 verificando reconexao
@@ -168,6 +169,7 @@ def verificar_reconectando(myEvent, myEventPausa):
 ## 2.2 Verificar se está na tela de login
 def verificar_tela_login(myEvent, myEventPausa):
     verificar_pausa(myEventPausa)
+    pg.sleep(0.3)
     caminho_popup_sair = f"{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_sair.png"
     alvo_sair = pgs.encontrar_alvo(caminho_popup_sair, semelhanca=0.8, necessario=False, regiao=const.AREA_BOTAO_SAIR)
     if alvo_sair is not None:
@@ -187,8 +189,8 @@ def abrir_menu_craft(myEvent, myEventPausa):
 
 ## 4. iniciar todos slots
 def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentativa=False):
-    global gastou_coins
-    gastou_coins = False
+    global gastou_coin
+    gastou_coin = False
 
     segundos_originais = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
     nova_duracao_original = tempo.converter_de_segundos(segundos_originais*0.1)
@@ -206,6 +208,7 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
     # print(f'personagem["crafts"]: {personagem["crafts"]}')
     # print(f'craft["craft"]: {craft["craft"]}')
 
+    if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
     if craft['craft'] in personagem['crafts']:
         info.printinfo(f'Iniciando task para {personagem["nickname"]} com o craft {craft["item"]}')
         pg.sleep(1)
@@ -248,7 +251,8 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
                         time.sleep(0.5)
                     elif resultado is False:
                         info.printinfo("Houve algum problema ao tentar iniciar um craft.", erro=True)
-                        if gastou_coins == True:
+                        if gastou_coin == True:
+                            if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
                             info.printinfo("Problema grave aconteceu, coins foram gastas e não foi possível finalizar a task.", erro=True, enviar_msg=True)
                             return [nova_duracao_original, -1, contador_iniciados]
                         if segunda_tentativa == False:
@@ -334,6 +338,8 @@ def verificar_concluidos(personagem, craft, myEvent, myEventPausa):
             ## implementar tratamento de falha pra caso a bolsa esteja cheia e não consiga coletar o item
             info.printinfo("Coletou um craft concluído.")
         else:
+            pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
+            pgs.clicar(1)
             return contador
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
     pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
@@ -403,7 +409,7 @@ def iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa):
             alvo_popup_faltou_recurso = pgs.encontrar_alvo(caminho_popup_faltou_recurso, semelhanca=0.8, necessario=False, alvo_problema=True, regiao=const.AREA_BOLSA)
             if alvo_popup_faltou_recurso is not None:
                 if verificar_erro_conexao(myEvent, myEventPausa): return False
-                info.printinfo("Faltou recurso para iniciar o craft.", erro=True)
+                info.printinfo("Faltou recurso para iniciar o craft.", erro=True, enviar_msg=True)
                 pg.sleep(0.1)
                 pg.press("enter")
                 pg.sleep(0.1)
@@ -498,11 +504,12 @@ def verificar_licenca(craft, myEvent, myEventPausa, primeiro_enter=True):
 
 
 ## 4.4 verificar melhoria (passo intermédiario)
-def verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa):
+def verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa, precica_abrir=True):
     if verificou_licenca == False:
         verificar_licenca(craft, myEvent, myEventPausa)
     pg.sleep(2)
-    pgs.press("f2")
+    if precica_abrir:
+        pgs.press("f2")
     alvo_alerta = pgs.encontrar_alvo(f'{const.PATH_IMGS_ANCORAS_POPUP}ancora_popup_alerta.png', semelhanca=0.8, necessario=False, regiao=const.AREA_POPUP)
     if alvo_alerta is not None:
         info.printinfo("Alerta de melhoria encontrado. Escolhendo um item para melhorar.")
@@ -515,7 +522,7 @@ def verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa):
 
 ## 4.5 iniciar craft especial (passo intermédiario)
 def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=False):
-    global gastou_coins
+    global gastou_coin
     info.printinfo("Item especial vai ser craftado.")
     pg.sleep(2)
     slots_especiais = craft_categorias[craft['craft']]["slots_especiais"]
@@ -529,7 +536,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         pgs.press("enter")
         pgs.mover_para(const.POS_BOTAO_CRAFT_MENU)
         pg.sleep(1)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
+        ## o alvo recursos é mais rigoroso porque a maioria dos crafts especiais tem um item que são muito parecidos um com outro
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
         alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
@@ -539,9 +547,11 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
             pg.sleep(1)
             if verificou_licenca == False:
                 verificar_licenca(craft, myEvent, myEventPausa, primeiro_enter=False)
+                verificou_licenca = True
             pg.sleep(2)
             if not myEvent.is_set(): return
             verificar_pausa(myEventPausa)
+            verificar_melhoria(craft, verificou_licenca, myEvent, myEventPausa, precica_abrir=False)
             pgs.press("f2")
             pg.sleep(0.3)
             return True
@@ -552,7 +562,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
     if segunda_tentativa == True:
         info.printinfo("Coins foram gastas e o craft não foi encontrado, erro grave aconteceu.", erro=True, enviar_msg=True)
         return False
-    if craft['gastar_coin'] == True and segunda_tentativa == False and gastou_coins == False:
+    if craft['gastar_coin'] == True and segunda_tentativa == False and gastou_coin == False:
         info.printinfo("Indo gastar coins para puxar o craft especial.", False, True)
         pgs.press("up")
         pg.sleep(0.3)
@@ -578,7 +588,8 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
         # while True:
         #     info.printinfo("Vai pressionar f2 e substituir o craft.")
         #     pg.sleep(10)
-        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
+        ## o alvo recursos é mais rigoroso porque a maioria dos crafts especiais tem um item que são muito parecidos um com outro
+        alvo_recursos = pgs.encontrar_alvo(caminho_recursos, semelhanca=0.98, necessario=True, regiao=const.AREA_CRAFT)
         alvo_produzido = pgs.encontrar_alvo(caminho_produzido, semelhanca=0.90, necessario=True, regiao=const.AREA_CRAFT)
         pg.sleep(1)
         if not myEvent.is_set(): return
@@ -588,7 +599,7 @@ def iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEven
             pgs.press("f2")
             pg.sleep(0.3)
             pgs.press("f2")
-            gastou_coins = True
+            gastou_coin = True
             pg.sleep(2)
             return iniciar_craft_especial(personagem, craft, verificou_licenca, myEvent, myEventPausa, segunda_tentativa=True)
         info.printinfo("Craft especial não foi encontrado para puxar e gastar coins.", erro=True, enviar_msg=True)

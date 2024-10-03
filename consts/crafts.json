@@ -210,6 +210,16 @@
 		"duracao_dia_hora_minuto": [0, 7, 27]
 	},
 	{
+		"item": "cajado_amplificado_1_32",
+		"craft": "longo_alcance",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 51,
+		"licenca": 4,
+		"duracao_dia_hora_minuto": [10, 5, 0]
+	},
+	{
 		"item": "maca_melhoria_1_32",
 		"craft": "corpo_a_corpo",
 		"especial": false,
