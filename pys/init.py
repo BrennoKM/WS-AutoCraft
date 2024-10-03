@@ -262,7 +262,7 @@ def iniciar(myEvent, myEventPausa):
             segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
             temp_duracao = tempo.converter_de_segundos(segundos*0.1)
             if craft['especial'] == True:
-                info.printinfo("Problema ao craftar porque o craft especial não estava disponível, ajustando para tempo para esperar menos.", erro=True, enviar_msg=True)
+                info.printinfo("Problema ao craftar porque o craft especial não estava disponível (ou por falta de recursos), ajustando para tempo para esperar menos.", erro=True, enviar_msg=True)
                 temp_duracao = tempo.converter_de_segundos(900)
             else:
                 info.printinfo("Problema ao craftar por falta de recursos, ajustando para tempo para esperar menos.", erro=True)
@@ -304,15 +304,6 @@ def iniciar(myEvent, myEventPausa):
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
             continue
 
-        if(craft['precisa_desmontar'] == True and contador_coletados > 0):
-            info.printinfo(f"Indo desmontar {contador_coletados} itens coletados.")
-            contador_desmontados = desmontar(personagem, craft['item'], contador_coletados, myEvent, myEventPausa)
-            info.printinfo(f"Desmontados {contador_desmontados} itens.")
-
-        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): 
-            procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa, houve_falha_conexao=True)
-            continue
-
         verificar_pausa(myEventPausa)
         if not myEvent.is_set():
             return
@@ -327,7 +318,14 @@ def iniciar(myEvent, myEventPausa):
 
         if myEvent.is_set():
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa)
-            
+        
+        if(craft['precisa_desmontar'] == True and contador_coletados > 0):
+            info.printinfo(f"Indo desmontar {contador_coletados} itens coletados.")
+            contador_desmontados = desmontar(personagem, craft['item'], contador_coletados, myEvent, myEventPausa)
+            info.printinfo(f"Desmontados {contador_desmontados} itens.")
+
+        if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): continue
+
         acoes_person.fechar_popup(myEvent, myEventPausa)
         acoes_person.deslogar(myEvent, myEventPausa)
 

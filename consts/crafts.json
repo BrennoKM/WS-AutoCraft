@@ -610,10 +610,30 @@
 		"duracao_dia_hora_minuto": [0, 2, 30]
 	},
 	{
-		"item": "maca_melhoria_1_32",
+		"item": "machado_1_32",
 		"craft": "corpo_a_corpo",
 		"especial": false,
 		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 229,
+		"licenca": 4,
+		"duracao_dia_hora_minuto": [3, 15, 0]
+	},
+	{
+		"item": "machado_melhoria_1_32",
+		"craft": "corpo_a_corpo",
+		"especial": false,
+		"melhoria": true,
+		"precisa_desmontar": false,
+		"posicao": 239,
+		"licenca": 4,
+		"duracao_dia_hora_minuto": [9, 0, 0]
+	},
+	{
+		"item": "maca_melhoria_1_32",
+		"craft": "corpo_a_corpo",
+		"especial": false,
+		"melhoria": true,
 		"precisa_desmontar": false,
 		"posicao": 240,
 		"licenca": 4,
@@ -623,7 +643,7 @@
 		"item": "maca_melhoria_2_32",
 		"craft": "corpo_a_corpo",
 		"especial": false,
-		"melhoria": false,
+		"melhoria": true,
 		"precisa_desmontar": false,
 		"posicao": 241,
 		"licenca": 4,
