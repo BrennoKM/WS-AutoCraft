@@ -64,26 +64,42 @@ def send_message(chat_id, message, printinfo_callback=print):
         try:
             response = session.get(urlmsg, timeout=60)  # Adiciona timeout de 60 segundos
             response.raise_for_status()  # Levanta exceção para códigos de status HTTP de erro
+        except requests.exceptions.ConnectionError:
+            if printinfo_callback:
+                printinfo_callback(f"Erro de conexão ao enviar mensagem para chat_id {chat_id}.", True)
+            return None  # Retorna None sem tentar novamente
         except requests.exceptions.RequestException as e:
             if printinfo_callback:
-                printinfo_callback(f"Erro na request para chat_id {chat_id}.", True, True)
-                # printinfo_callback(f"Erro na request para chat_id {chat_id}: {e}", True)
-            return None
-        # if printinfo_callback:
-            # printinfo_callback(f"Mensagem enviada para chat_id {chat_id}.")
+                printinfo_callback(f"Erro na request para chat_id {chat_id}", True, True)
+            return None  # Retorna None para outros erros
         return response.json()
 
 def send_image(chat_id, image_path, printinfo_callback):
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     legenda_hora_atual = datetime.now().strftime("%H:%M:%S")
-    with open(image_path, 'rb') as image_file:
-        files = {'photo': image_file}
-        data = {'chat_id': chat_id, 'caption': f"Printscreen tirada às {legenda_hora_atual}"}
-        response = requests.post(url, files=files, data=data)
-        if response.status_code == 200:
+    
+    try:
+        with open(image_path, 'rb') as image_file:
+            files = {'photo': image_file}
+            data = {'chat_id': chat_id, 'caption': f"Printscreen tirada às {legenda_hora_atual}"}
+            response = requests.post(url, files=files, data=data)
+            response.raise_for_status()  # Levanta exceção para códigos de status HTTP de erro
+            
             printinfo_callback("Printscreen enviada com sucesso.")
-        else:
-            printinfo_callback(f"Falha ao enviar printscreen: {response.text}", True, True)
+            return response.json()  # Retorna a resposta se a requisição for bem-sucedida
+
+    except requests.exceptions.ConnectionError:
+        printinfo_callback(f"Erro de conexão ao enviar a imagem para chat_id {chat_id}.", True)
+        return None  # Retorna None sem tentar novamente
+    except requests.exceptions.RequestException as e:
+        printinfo_callback(f"Falha ao enviar printscreen para chat_id {chat_id}", True, True)
+        return None  # Retorna None para outros erros
+    except FileNotFoundError:
+        printinfo_callback(f"Arquivo não encontrado: {image_path}", True, True)
+        return None  # Retorna None se o arquivo não for encontrado
+
+
+            
 # verificar_variaveis_ambiente()
 
 # URL TO GET CHAT_ID:
