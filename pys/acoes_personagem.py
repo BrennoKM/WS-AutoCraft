@@ -299,6 +299,8 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
             info.printinfo(f'Todos os {contador_iniciados} slots foram iniciados corretamente para o personagem {personagem["nickname"]} e {contador_coletados} itens foram coletados.', False, True)
         else:
             info.printinfo(f"Iniciou {contador_iniciados} slots faltantes para o personagem {personagem['nickname']}.", False, True)
+            if contador_iniciados != personagem['slots']:
+                return [nova_duracao_original, contador_coletados, contador_iniciados]
         return [craft['duracao_dia_hora_minuto'], contador_coletados, contador_iniciados]
     else:
         info.printinfo(f'O personagem {personagem["nickname"]} não possui o craft {craft["craft"]}.', True, True)
@@ -607,7 +609,14 @@ def fechar_menu_craft(myEvent, myEventPausa):
     if not myEvent.is_set():
         return
     verificar_pausa(myEventPausa)
+    verificar_alerta(myEvent, myEventPausa)
     if verificar_erro_conexao(myEvent, myEventPausa): return
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)
@@ -718,7 +727,14 @@ def encontrar_itens_e_desmontar(item, contador, myEvent, myEventPausa):
 def fechar_menu_bolsa(myEvent, myEventPausa):
     if not myEvent.is_set(): return
     verificar_pausa(myEventPausa)
+    verificar_alerta(myEvent, myEventPausa)
     if verificar_erro_conexao(myEvent, myEventPausa): return
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
+    if verificar_tela_login(myEvent, myEventPausa): return
+    pg.press('f1')
     if verificar_tela_login(myEvent, myEventPausa): return
     pg.press('f1')
     pg.sleep(0.3)

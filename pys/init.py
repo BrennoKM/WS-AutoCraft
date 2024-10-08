@@ -273,11 +273,11 @@ def iniciar(myEvent, myEventPausa):
             return
         
         if contador_coletados < 0 and craft['precisa_desmontar'] == True: ## nesse cenario o contador é negativo porque faltou recursos e vou verificar se tem algo para desmontar
-            info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.")
+            info.printinfo("Problema ao craftar, indo desmontar itens na bolsa para tentar novamente.", enviar_msg=True)
             contador_desmontados = desmontar(personagem, craft['item'], (contador_coletados*-1), myEvent, myEventPausa)
             acoes_person.fechar_popup(myEvent, myEventPausa)
             verificar_pausa(myEventPausa)
-            info.printinfo(f"Foram desmontados {contador_desmontados} itens.")
+            info.printinfo(f"Foram desmontados {contador_desmontados} itens.", enviar_msg=True)
             
             segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
             temp_duracao = tempo.converter_de_segundos(segundos*0.1)
