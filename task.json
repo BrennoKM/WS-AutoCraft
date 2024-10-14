@@ -9,11 +9,11 @@
 	],
 "itens":
 	[
-		"licenca_prod_longo_alcance", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance", "licenca_prod_longo_alcance"
+		"capote_1_10", "peito_pesado_1_10", "peito_pesado_1_10", "peito_leve_1_10", "balestra_1_16", "peito_leve_1_10"
 	],
 "slots_disponiveis":
 	[
-		4, 4, 4, 4, 4, 4
+		4, 4, 4, 4, 5, 4
 	],
 "reinserir_na_fila":
 	[
@@ -21,7 +21,7 @@
 	],
 "gastar_coin":
 	[
-		true, true, true, true, true, true
+		false, false, false, false, false, false
 	],
 "tempo_espera_inicial":
 	[

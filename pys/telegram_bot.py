@@ -138,7 +138,10 @@ def process_updates(updates, myEvent, myEventPausa):
             text = message.get("text")
             chat_id = message["chat"]["id"]
             if str(chat_id) in AUTHORIZED_CHAT_IDS:  # Verificar se o chat_id está autorizado
-                process_command(text, chat_id, myEvent, myEventPausa)
+                try:
+                    process_command(text, chat_id, myEvent, myEventPausa)
+                except Exception as e:
+                    info.printinfo(f"Erro ao processar comando.", True, True)
 
             else:
                 if text == "/start":

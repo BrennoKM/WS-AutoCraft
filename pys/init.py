@@ -346,6 +346,12 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
         info.printinfo(f"Serviço para {personagem['nickname']} finalizado. Sem reinserção na fila.", False, True)
         # fila_prioridade.dequeue()
         return
+    
+    if qnt_faltantes > 0:
+        if espera_diminuida is False: ## trecho temporário para investigar um bug
+            info.printinfo(f"Debug: espera diminuida já deveria ser true se qnt_faltantes > 0, verificar o que aconteceu aqui.", erro=True, enviar_msg=True)
+        espera_diminuida = True
+
     segundos = 0
     if espera_diminuida is False:
         segundos = tempo.converter_para_segundos(craft['duracao_dia_hora_minuto'])
@@ -367,7 +373,7 @@ def procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_
         iniciou_algum = slots_totais_disponiveis - qnt_faltantes > 0
         deve_reinserir_faltantes = True
         
-        if iniciou_algum and craft['gastar_coin'] == True:
+        if iniciou_algum and craft['gastar_coin'] == True and craft['especial'] == True:
             if segundos > 0: ## se for negativo indica que houve uma falha de conexão e deve ser reinserido na fila
                 info.printinfo(f"Slots faltantes do personagem {personagem['nickname']} não serão reinseridas na fila pois não finalizou a task e provavelmente gastou coins.", erro=True, enviar_msg=True)
                 deve_reinserir_faltantes = False

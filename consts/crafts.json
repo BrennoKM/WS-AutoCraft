@@ -590,6 +590,26 @@
 		"duracao_dia_hora_minuto": [0, 7, 27]
 	},
 	{
+		"item": "cajado_1_32",
+		"craft": "longo_alcance",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 98,
+		"licenca": 4,
+		"duracao_dia_hora_minuto": [3, 15, 0]
+	},
+	{
+		"item": "cajado_melhoria_1_32",
+		"craft": "longo_alcance",
+		"especial": false,
+		"melhoria": true,
+		"precisa_desmontar": false,
+		"posicao": 102,
+		"licenca": 4,
+		"duracao_dia_hora_minuto": [9, 0, 0]
+	},
+	{
 		"item": "cajado_amplificado_1_32",
 		"craft": "longo_alcance",
 		"especial": true,
