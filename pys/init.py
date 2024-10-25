@@ -320,9 +320,9 @@ def iniciar(myEvent, myEventPausa):
             procedimento_pos_task(personagem, craft, prioridade, espera_diminuida, nova_duracao, qnt_faltantes, myEvent, myEventPausa)
         
         if(craft['precisa_desmontar'] == True and contador_coletados > 0):
-            info.printinfo(f"Indo desmontar {contador_coletados} itens coletados.")
+            info.printinfo(f"Indo desmontar {contador_coletados} itens coletados.", enviar_msg=True)
             contador_desmontados = desmontar(personagem, craft['item'], contador_coletados, myEvent, myEventPausa)
-            info.printinfo(f"Desmontados {contador_desmontados} itens.")
+            info.printinfo(f"Desmontados {contador_desmontados} itens.", enviar_msg=True)
 
         if verificar_erro_conexao(personagem, craft, myEvent, myEventPausa, False): continue
 
