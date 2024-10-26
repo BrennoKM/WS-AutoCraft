@@ -104,9 +104,9 @@ class Fila_prioridade:
             tempo_restante = tempo - time.time()
             #lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.\tItem: {item},\tSlots disponíveis: {slots_disponiveis},\tReinserir na fila: {reinserir_na_fila},\tID na fila: {id}\n")
             if fila_detalhada == True:
-                lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.\tItem: {item},\tSlots disponíveis: {slots_disponiveis},\tReinserir na fila: {reinserir_na_fila},\tGastar coin: {gastar_coin},\tID na fila: {id}\n")
+                lista.append(f"\n\t\tPersonagem: {personagem},\n\t\t\tTempo restante: {tempo_restante:.2f} segundos.\n\t\t\tItem: {item},\n\t\t\tSlots disponíveis: {slots_disponiveis},\n\t\t\tReinserir na fila: {reinserir_na_fila},\n\t\t\tGastar coin: {gastar_coin},\n\t\t\tID na fila: {id}\n")
             else:
-                lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.")
+                lista.append(f"\n\t\tPersonagem: {personagem},\n\t\t\tTempo restante: {tempo_restante:.2f} segundos.")
         if not self.is_empty():
             for t in self.queue:
                 personagem = t[0]
@@ -118,9 +118,9 @@ class Fila_prioridade:
                 id = t[6]
                 tempo_restante = tempo - time.time()
                 if fila_detalhada == True:
-                    lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.\tItem: {item},\tSlots disponíveis: {slots_disponiveis},\tReinserir na fila: {reinserir_na_fila},\tGastar coin: {gastar_coin},\tID na fila: {id}\n")
+                    lista.append(f"\n\t\tPersonagem: {personagem},\n\t\t\tTempo restante: {tempo_restante:.2f} segundos.\n\t\t\tItem: {item},\n\t\t\tSlots disponíveis: {slots_disponiveis},\n\t\t\tReinserir na fila: {reinserir_na_fila},\n\t\t\tGastar coin: {gastar_coin},\n\t\t\tID na fila: {id}\n")
                 else:
-                    lista.append(f"\n\t\tPersonagem: {personagem},\tTempo restante: {tempo_restante:.2f} segundos.")
+                    lista.append(f"\n\t\tPersonagem: {personagem},\n\t\t\tTempo restante: {tempo_restante:.2f} segundos.")
         conteudo_fila = "Fila de prioridade:\n" + "".join(lista)
         if lista == []:
             conteudo_fila = "Fila de prioridade vazia."
