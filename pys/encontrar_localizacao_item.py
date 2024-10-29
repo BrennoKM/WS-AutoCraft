@@ -3,9 +3,9 @@ import pyautogui as pg
 
 ## Encontrar a posicao de um item no menu de craft, serve apenas para facilitar a contagem
 
-posicao = 101
+posicao = 19
 
-slots_especiais = 2
+slots_especiais = 3
 
 pg.sleep(2)
 

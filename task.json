@@ -9,11 +9,11 @@
 	],
 "itens":
 	[
-		"capote_1_10", "peito_pesado_1_10", "peito_pesado_1_10", "peito_leve_1_10", "balestra_1_16", "peito_leve_1_10"
+		"material_composto_longo_alcance", "material_composto_longo_alcance", "material_composto_longo_alcance", "material_composto_longo_alcance", "balestra_1_16", "material_composto_armadura_leve"
 	],
 "slots_disponiveis":
 	[
-		4, 4, 4, 4, 5, 4
+		5, 5, 5, 5, 5, 5
 	],
 "reinserir_na_fila":
 	[
@@ -21,7 +21,7 @@
 	],
 "gastar_coin":
 	[
-		false, false, false, false, false, false
+		true, true, true, true, false, true
 	],
 "tempo_espera_inicial":
 	[

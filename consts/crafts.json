@@ -480,6 +480,96 @@
 		"duracao_dia_hora_minuto": [0, 12, 0]
 	},
 	{
+		"item": "material_composto_longo_alcance",
+		"craft": "longo_alcance",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 2,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_corpo_a_corpo",
+		"craft": "corpo_a_corpo",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 2,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_tecido",
+		"craft": "armadura_tecido",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_leve",
+		"craft": "armadura_leve",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_pesada",
+		"craft": "armadura_pesada",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_bracelete",
+		"craft": "bracelete",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_amuleto",
+		"craft": "amuleto",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_capote",
+		"craft": "capote",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_anel",
+		"craft": "anel",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
 		"item": "licenca_prod_longo_alcance",
 		"craft": "longo_alcance",
 		"especial": true,
@@ -630,6 +720,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 30]
 	},
 	{
+		"item": "maca_1_16",
+		"craft": "corpo_a_corpo",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 68,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 7, 27]
+	},
+	{
 		"item": "machado_1_32",
 		"craft": "corpo_a_corpo",
 		"especial": false,
@@ -680,6 +780,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 0]
 	},
 	{
+		"item": "peito_tecido_1_16",
+		"craft": "armadura_tecido",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 40,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
+	},
+	{
 		"item": "peito_leve_1_10",
 		"craft": "armadura_leve",
 		"especial": false,
@@ -690,6 +800,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 0]
 	},
 	{
+		"item": "peito_leve_1_16",
+		"craft": "armadura_leve",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 40,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
+	},
+	{
 		"item": "peito_pesado_1_10",
 		"craft": "armadura_pesada",
 		"especial": false,
@@ -698,6 +818,16 @@
 		"posicao": 7,
 		"licenca": 1,
 		"duracao_dia_hora_minuto": [0, 2, 0]
+	},
+	{
+		"item": "peito_pesado_1_16",
+		"craft": "armadura_pesada",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 40,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
 	},
 	{
 		"item": "bracelete_1_10",
@@ -750,6 +880,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 0]
 	},
 	{
+		"item": "amuleto_1_16",
+		"craft": "amuleto",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 19,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
+	},
+	{
 		"item": "capote_1_10",
 		"craft": "capote",
 		"especial": false,
@@ -760,6 +900,16 @@
 		"duracao_dia_hora_minuto": [0, 2, 0]
 	},
 	{
+		"item": "capote_1_16",
+		"craft": "capote",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 19,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
+	},
+	{
 		"item": "anel_1_10",
 		"craft": "anel",
 		"especial": false,
@@ -768,5 +918,15 @@
 		"posicao": 4,
 		"licenca": 1,
 		"duracao_dia_hora_minuto": [0, 2, 0]
+	},
+	{
+		"item": "anel_1_16",
+		"craft": "anel",
+		"especial": false,
+		"melhoria": false,
+		"precisa_desmontar": true,
+		"posicao": 25,
+		"licenca": 1,
+		"duracao_dia_hora_minuto": [0, 6, 0]
 	}
 ]
