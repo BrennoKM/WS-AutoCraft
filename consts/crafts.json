@@ -480,6 +480,96 @@
 		"duracao_dia_hora_minuto": [0, 12, 0]
 	},
 	{
+		"item": "material_composto_longo_alcance",
+		"craft": "longo_alcance",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 2,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_corpo_a_corpo",
+		"craft": "corpo_a_corpo",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 2,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_tecido",
+		"craft": "armadura_tecido",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_leve",
+		"craft": "armadura_leve",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_armadura_pesada",
+		"craft": "armadura_pesada",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 6,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_bracelete",
+		"craft": "bracelete",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_amuleto",
+		"craft": "amuleto",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_capote",
+		"craft": "capote",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
+		"item": "material_composto_anel",
+		"craft": "anel",
+		"especial": true,
+		"melhoria": false,
+		"precisa_desmontar": false,
+		"posicao": 4,
+		"licenca": 2,
+		"duracao_dia_hora_minuto": [0, 3, 0]
+	},
+	{
 		"item": "licenca_prod_longo_alcance",
 		"craft": "longo_alcance",
 		"especial": true,
