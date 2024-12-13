@@ -1,27 +1,27 @@
 {
 "nicknames":
 	[
-		"Jikininki", "Scalaxy", "Waxius", "Phormid", "Aqsafada", "Kobernn"
+		"Jikininki", "Jikininki", "Scalaxy", "Scalaxy", "Waxius", "Waxius", "Phormid", "Phormid", "Aqsafada", "Aqsafada", "Kobernn", "Kobernn"
 	],
 "tempo_restante":
 	[
-		[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]
+		[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]
 	],
 "itens":
 	[
-		"material_composto_longo_alcance", "material_composto_longo_alcance", "material_composto_longo_alcance", "material_composto_longo_alcance", "balestra_1_16", "material_composto_armadura_leve"
+		"material_composto_longo_alcance", "material_composto_corpo_a_corpo", "material_composto_longo_alcance", "material_composto_corpo_a_corpo", "material_composto_longo_alcance", "material_composto_corpo_a_corpo", "material_composto_longo_alcance", "material_composto_corpo_a_corpo", "material_composto_longo_alcance", "material_composto_corpo_a_corpo", "material_composto_longo_alcance", "material_composto_corpo_a_corpo"
 	],
 "slots_disponiveis":
 	[
-		5, 5, 5, 5, 5, 5
+		5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 	],
 "reinserir_na_fila":
 	[
-		true, true, true, true, true, true
+		true, true, true, true, true, true, true, true, true, true, true, true
 	],
 "gastar_coin":
 	[
-		true, true, true, true, false, true
+		false, false, false, false, false, false, false, false, false, false, false, false
 	],
 "tempo_espera_inicial":
 	[
