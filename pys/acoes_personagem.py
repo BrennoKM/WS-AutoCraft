@@ -238,6 +238,8 @@ def iniciar_todos_slots(personagem, craft, myEvent, myEventPausa, segunda_tentat
                     time.sleep(0.2)
                     verificar_pausa(myEventPausa)
                     resultado = iniciar_craft(personagem, craft, verificou_licenca, myEvent, myEventPausa)
+                    if (verificar_alerta(myEvent, myEventPausa)):
+                        resultado = False
                     if verificar_erro_conexao(myEvent, myEventPausa): return [nova_duracao_original, contador_coletados, contador_iniciados]
                     if resultado is True:
                         info.printinfo("Um craft foi iniciado.")
